@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "SFConfigManager": {
-      "commandName": "Project",
-      "commandLineArgs": "\"C:\\Users\\Davide\\source\\repos\\ProvaSF\\ProvaSF.sln\""
-    }
-  }
-}
