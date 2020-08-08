@@ -6,25 +6,40 @@ module SettingsParser =
     open System.Xml.Linq
     open SFConfigManager.Core.Common
 
-    type SettingsParser() = class
-        let mutable sections = Map.empty
+    type SettingsParseResult =
+        { Sections: Map<string, string * string> }
 
-        let getItems ns (element: XElement) =
-            element.Elements(XName.Get("Parameter", ns))
-            |> Seq.map (fun q -> (element.Attribute(!> "Name").Value, (q.Attribute(!> "Name").Value, q.Attribute(!> "Value").Value)))
+    type SettingsParser() =
+        class
+            let mapEntryBuilder element child =
+                let eName = getAttrValue "Name" element
+                let qName = getAttrValue "Name" child
+                let qValue = getAttrValue "Value" child
+                (eName, (qName, qValue))
 
-        let fill (doc: XDocument) =
-            let ns = doc.Root.GetDefaultNamespace()
-            sections <- doc
-                .Descendants(XName.Get("Section", ns.NamespaceName))
-                |> Seq.collect (getItems ns.NamespaceName)
-                |> Map.ofSeq
+            let getItems ns (element: XElement) =
+                xNameBuilder ns "Parameter"
+                |> element.Elements
+                |> Seq.map (mapEntryBuilder element)
 
-        member this.Sections = sections
+            let buildResult (doc: XDocument) =
+                let ns = doc.Root.GetDefaultNamespace()
+                let xNameBuilderP = xNameBuilder ns
 
-        member this.Parse path =
-            let dir = Path.GetDirectoryName path
-            let p = Path.Combine(dir, "PackageRoot", "Config", "Settings.xml")
-            let doc = XDocument.Load(p)
-            fill doc
-    end
+                let sections =
+                    xNameBuilderP "Section"
+                    |> doc.Descendants
+                    |> Seq.collect (getItems ns)
+                    |> Map.ofSeq
+
+                { Sections = sections }
+
+            member this.Parse path =
+                try
+                    Path.GetDirectoryName path
+                    |> fun d -> Path.Combine(d, "PackageRoot", "Config", "Settings.xml")
+                    |> XDocument.Load
+                    |> buildResult
+                    |> Ok
+                with e -> Error e
+        end

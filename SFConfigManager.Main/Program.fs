@@ -8,7 +8,7 @@ module Main =
     let getSfProj path =
         let projs = SolutionParser.getSfProjs path
         match projs with
-        | f :: _ -> Ok f
+        | Ok ({ SfProjList = (s :: _) }) -> Ok s
         | _ -> Error NoProjectFoundException
 
     let parseSfProj proj =
@@ -31,7 +31,7 @@ module Main =
     [<EntryPoint>]
     let main argv =
         match argv |> Array.toList with
-        | path :: _ -> 
+        | path :: _ ->
             mainBody path
             0
         | _ ->

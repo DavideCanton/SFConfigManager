@@ -6,58 +6,54 @@ module SFProjParser =
     open System.Xml.Linq
     open SFConfigManager.Core.Common
 
-    type SFProjParseResult(parameters: string list, manifestPath: string, services: string list) =
-        class
-            member this.Parameters = parameters
-            member this.ManifestPath = manifestPath
-            member this.Services = services
-        end
+    type SFProjParseResult =
+        { Parameters: string list
+          ManifestPath: string
+          Services: string list }
 
     type SFProjParser() =
         class
-            let mutable baseFolder = ""
+            let buildResult baseFolder (document: XDocument) =
+                let relativeToBase p =
+                    Path.Combine(baseFolder, p) |> Path.GetFullPath
 
-            let joinToBase p =
-                Path.Combine(baseFolder, p) |> Path.GetFullPath
-
-            let getAttrValue (attributeName: string) (node: XElement) = node.Attribute(!>attributeName).Value
-
-            let attrContains (query: string) (value: string) =
-                query |> value.Contains
-
-            let buildResult (document: XDocument) =
                 let ns = document.Root.GetDefaultNamespace()
-                let xNameBuilder name = XName.Get(name, ns.NamespaceName)
+                let xNameBuilderP = xNameBuilder ns
 
                 let parameters =
-                    xNameBuilder "None"
+                    xNameBuilderP "None"
                     |> document.Descendants
-                    |> Seq.filter (getAttrValue "Include" >> attrContains "ApplicationParameters")
-                    |> Seq.map (getAttrValue "Include" >> joinToBase)
+                    |> Seq.filter
+                        (getAttrValue "Include"
+                         >> contains "ApplicationParameters")
+                    |> Seq.map (getAttrValue "Include" >> relativeToBase)
                     |> Seq.toList
 
                 let node =
-                    xNameBuilder "None"
+                    xNameBuilderP "None"
                     |> document.Descendants
-                    |> Seq.find (getAttrValue "Include" >> attrContains "ApplicationManifest")
+                    |> Seq.find
+                        (getAttrValue "Include"
+                         >> contains "ApplicationManifest")
 
                 let manifestPath =
-                    (getAttrValue "Include" node) |> joinToBase
+                    node |> getAttrValue "Include" |> relativeToBase
 
                 let services =
-                    xNameBuilder "ProjectReference"
+                    xNameBuilderP "ProjectReference"
                     |> document.Descendants
-                    |> Seq.map (getAttrValue "Include" >> joinToBase)
+                    |> Seq.map (getAttrValue "Include" >> relativeToBase)
                     |> Seq.toList
 
-                SFProjParseResult(parameters, manifestPath, services)
+                { Parameters = parameters
+                  ManifestPath = manifestPath
+                  Services = services }
 
 
-            member this.Parse path =
+            member this.Parse (path: string) =
                 try
-                    baseFolder <- Path.GetDirectoryName(path)
-                    let document = XDocument.Load(path)
-                    let result = buildResult document
-                    Ok(result)
-                with e -> Error(e)
+                    XDocument.Load(path)
+                    |> buildResult (Path.GetDirectoryName(path))
+                    |> Ok
+                with e -> Error e
         end
