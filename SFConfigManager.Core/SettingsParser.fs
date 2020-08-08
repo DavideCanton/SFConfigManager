@@ -22,7 +22,7 @@ module SettingsParser =
 
         member this.Sections = sections
 
-        member this.parse path =
+        member this.Parse path =
             let dir = Path.GetDirectoryName path
             let p = Path.Combine(dir, "PackageRoot", "Config", "Settings.xml")
             let doc = XDocument.Load(p)
