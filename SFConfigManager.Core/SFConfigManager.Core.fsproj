@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Common.fs" />
     <Compile Include="SettingsParser.fs" />
     <Compile Include="SFProjParser.fs" />
     <Compile Include="SolutionParser.fs" />
