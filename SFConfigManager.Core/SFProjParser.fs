@@ -15,11 +15,11 @@ module SFProjParser =
         let relativeToBase p =
             Path.Combine(baseFolder, p) |> Path.GetFullPath
 
-        let ns = document.Root.GetDefaultNamespace()
-        let xNameBuilderP = xNameBuilder ns
+        let xNameBuilder' =
+            xNameBuilder (document.Root.GetDefaultNamespace())
 
         let parameters =
-            xNameBuilderP "None"
+            xNameBuilder' "None"
             |> document.Descendants
             |> Seq.filter
                 (getAttrValue "Include"
@@ -28,7 +28,7 @@ module SFProjParser =
             |> Seq.toList
 
         let node =
-            xNameBuilderP "None"
+            xNameBuilder' "None"
             |> document.Descendants
             |> Seq.find
                 (getAttrValue "Include"
@@ -38,7 +38,7 @@ module SFProjParser =
             node |> getAttrValue "Include" |> relativeToBase
 
         let services =
-            xNameBuilderP "ProjectReference"
+            xNameBuilder' "ProjectReference"
             |> document.Descendants
             |> Seq.map (getAttrValue "Include" >> relativeToBase)
             |> Seq.toList

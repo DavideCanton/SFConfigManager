@@ -6,9 +6,6 @@ open System.IO
 exception ProjectNotFoundException
 
 module Main =
-    let inline (||>) (x: 'a) (f: 'a -> unit): 'a =
-        f x; x
-
 
     let getSfProj path =
         let projs = SolutionParser.parseSolution path
@@ -29,7 +26,7 @@ module Main =
         printfn "File: %s" (Path.GetFileName path)
         match parsed with
         | Ok result ->
-            printfn "%A" result.Params
+            result.Params |> List.iter (printfn "%A")
         | Error e -> printfn "Error: %s" e.Message
         ()
 
@@ -43,7 +40,7 @@ module Main =
     let mainBody path =
         getSfProj path
         |> Result.bind SFProjParser.parseSFProj
-        ||> handleParsedSfProj
+        |> fun x -> handleParsedSfProj x; x
         |> handleParameters
 
     [<EntryPoint>]

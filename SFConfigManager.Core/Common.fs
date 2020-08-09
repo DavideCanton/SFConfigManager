@@ -8,6 +8,7 @@ module Common =
 
     let getAttrValue (attributeName: string) (node: XElement) = node.Attribute(!>attributeName).Value
 
-    let contains (query: string) (value: string) = query |> value.Contains
+    let contains (query: string) (value: string) = value.Contains query
 
     let xNameBuilder (ns: XNamespace) name = XName.Get(name, ns.NamespaceName)
+ 

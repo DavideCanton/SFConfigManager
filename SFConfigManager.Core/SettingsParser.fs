@@ -4,6 +4,7 @@ module SettingsParser =
 
     open System.IO
     open System.Xml.Linq
+    open FSharpPlus
     open SFConfigManager.Core.Common
 
     type SettingsParseResult =
@@ -22,10 +23,9 @@ module SettingsParser =
 
     let private buildResult (doc: XDocument) =
         let ns = doc.Root.GetDefaultNamespace()
-        let xNameBuilderP = xNameBuilder ns
 
         let sections =
-            xNameBuilderP "Section"
+            xNameBuilder ns "Section"
             |> doc.Descendants
             |> Seq.collect (getItems ns)
             |> Map.ofSeq
@@ -33,9 +33,11 @@ module SettingsParser =
         { Sections = sections }
 
     let parseSettings path =
+        let settingsFile = Path.Combine("PackageRoot", "Config", "Settings.xml")
+        let appendPath = flip <| curry Path.Combine
         try
-            Path.GetDirectoryName path
-            |> fun d -> Path.Combine(d, "PackageRoot", "Config", "Settings.xml")
+            Path.GetDirectoryName path            
+            |> appendPath settingsFile
             |> XDocument.Load
             |> buildResult
             |> Ok
