@@ -6,7 +6,7 @@ module SolutionParser =
 
     type SolutionParseResult = { SfProjList: string list }
 
-    let getSfProjs path =
+    let parseSolution path =
         try
             SolutionFile.Parse(path).ProjectsInOrder
             |> Seq.filter (fun p -> p.RelativePath.EndsWith("sfproj"))

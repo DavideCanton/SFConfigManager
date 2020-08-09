@@ -1,18 +1,15 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Include="Common.fs" />
     <Compile Include="SettingsParser.fs" />
     <Compile Include="SFProjParser.fs" />
     <Compile Include="SolutionParser.fs" />
+    <Compile Include="ParameterParser.fs" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.Build" Version="16.6.0" />
   </ItemGroup>
-
 </Project>
