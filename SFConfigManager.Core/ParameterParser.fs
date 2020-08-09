@@ -4,31 +4,32 @@ module ParameterParser =
 
     open System.Xml.Linq
     open SFConfigManager.Core.Common
+    open FSharpPlus
 
     type ParameterResultEntry =
         { ServiceName: string
-          SectionName: string option
+          ParamName: string
           ParamValue: string }
 
-    type ParametersParseResult =
-        { Params: Map<string, ParameterResultEntry> }
+    type ParametersParseResult = { Params: ParameterResultEntry list }
+
+    let private splitTwo (sep: string) (value: string) =
+        let list = String.split [sep] value |> Seq.toList
+        match list with
+        | [] -> None
+        | (sn::pn) -> Some (sn, String.concat "_" pn)
 
     let private extract (p: string) =
-        let parts = (p.Split '_') |> Array.toList
-        match parts with
-        | [ sn; pn ] -> Some(sn, None, pn)
-        | [ sn; snn; pn ] -> Some(sn, Some snn, pn)
-        | _ -> None
+        splitTwo "_" p
 
     let private getItems ns element =
         let value = getAttrValue "Value" element
         getAttrValue "Name" element
         |> extract
-        |> Option.map (fun (sn, snn, pn) ->
-            (pn,
-             { ServiceName = sn
-               SectionName = snn
-               ParamValue = value }))
+        |> Option.map (fun (sn, pn) ->
+            { ServiceName = sn
+              ParamName = pn
+              ParamValue = value })
 
     let private buildResult (doc: XDocument) =
         let ns = doc.Root.GetDefaultNamespace()
@@ -38,7 +39,7 @@ module ParameterParser =
             |> doc.Descendants
             |> Seq.map (getItems ns)
             |> Seq.choose id
-            |> Map.ofSeq
+            |> Seq.toList
 
         { Params = parameters }
 

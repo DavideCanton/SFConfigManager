@@ -1,6 +1,7 @@
 ﻿namespace SFConfigManager.Main
 
 open SFConfigManager.Core
+open System.IO
 
 exception ProjectNotFoundException
 
@@ -24,7 +25,12 @@ module Main =
         | Error e -> printfn "Error: %s" e.Message
 
     let parseParameterFile (path: string) =
-        let result = ParameterParser.parseParameters
+        let parsed = ParameterParser.parseParameters path
+        printfn "File: %s" (Path.GetFileName path)
+        match parsed with
+        | Ok result ->
+            printfn "%A" result.Params
+        | Error e -> printfn "Error: %s" e.Message
         ()
 
     let handleParameters (parsed: Result<SFProjParser.SFProjParseResult, exn>) =
