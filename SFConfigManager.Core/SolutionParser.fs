@@ -1,19 +1,17 @@
-﻿namespace SFConfigManager.Core
+﻿module SFConfigManager.Core.SolutionParser
 
-module SolutionParser =
+open Microsoft.Build.Construction
+open FSharpPlus
 
-    open Microsoft.Build.Construction
-    open FSharpPlus
+type SolutionParseResult = { SfProjList: string list }
 
-    type SolutionParseResult = { SfProjList: string list }
-
-    let parseSolution path =
-        let absPathGetter (p: ProjectInSolution) = p.AbsolutePath
-        try
-            SolutionFile.Parse(path).ProjectsInOrder
-            |> Seq.map absPathGetter
-            |> Seq.filter (String.endsWith "sfproj")
-            |> Seq.toList
-            |> fun s -> { SfProjList = s }
-            |> Ok
-        with e -> Error e
+let parseSolution path =
+    let absPathGetter (p: ProjectInSolution) = p.AbsolutePath
+    try
+        SolutionFile.Parse(path).ProjectsInOrder
+        |> Seq.map absPathGetter
+        |> Seq.filter (String.endsWith "sfproj")
+        |> Seq.toList
+        |> fun s -> { SfProjList = s }
+        |> Ok
+    with e -> Error e
