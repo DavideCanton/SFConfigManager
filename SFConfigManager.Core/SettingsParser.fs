@@ -1,34 +1,34 @@
 ﻿module SFConfigManager.Core.SettingsParser
 
 open System.IO
-open System.Xml.Linq
 open FSharpPlus
+open SFConfigManager.Data
 open SFConfigManager.Core.Common
 
 type SettingsParseResult =
-    { Sections: Map<string, string * string> }
+    { Sections: Map<string, (string * string) list> }
 
-let private mapEntryBuilder element child =
-    let eName = getAttrValue "Name" element
-    let qName = getAttrValue "Name" child
-    let qValue = getAttrValue "Value" child
-    (eName, (qName, qValue))
+let private extractEntry (section: FabricTypes.Section2) =
+    let name = section.Name
+    let p =
+        section.Parameters
+        |> Seq.map (fun p -> (p.Name, p.Value))
+        |> Seq.toList
+    (name, p)
 
-let private getItems ns (element: XElement) =
-    xNameBuilder ns "Parameter"
-    |> element.Elements
-    |> Seq.map (mapEntryBuilder element)
-
-let private buildResult (doc: XDocument) =
-    let ns = doc.Root.GetDefaultNamespace()
-
-    let sections =
-        xNameBuilder ns "Section"
-        |> doc.Descendants
-        |> Seq.collect (getItems ns)
+let private extractSettings (root: FabricTypes.Settings2) =
+    let sections = 
+        root.Sections
+        |> Seq.map extractEntry
         |> Map.ofSeq
-
+    
     { Sections = sections }
+
+let private buildResult (x: FabricTypes.Choice) =
+    match x.Settings with
+    | None -> Error InvalidFileException
+    | Some root -> Ok <| extractSettings root
+
 
 let parseSettings path =
     let settingsFile = Path.Combine("PackageRoot", "Config", "Settings.xml")
@@ -36,7 +36,7 @@ let parseSettings path =
     try
         Path.GetDirectoryName path            
         |> appendPath settingsFile
-        |> XDocument.Load
+        |> File.ReadAllText
+        |> FabricTypes.Parse
         |> buildResult
-        |> Ok
     with e -> Error e

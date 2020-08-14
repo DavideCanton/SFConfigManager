@@ -3,6 +3,11 @@
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SFConfigManager.Data\SFConfigManager.Data.fsproj">
+      <Name>SFConfigManager.Data.fsproj</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="Common.fs" />
     <Compile Include="SettingsParser.fs" />
     <Compile Include="SFProjParser.fs" />

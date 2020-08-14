@@ -1,44 +1,41 @@
 ﻿module SFConfigManager.Core.SFProjParser
 
 open System.IO
-open System.Xml.Linq
 open SFConfigManager.Core.Common
+open Microsoft.Build.Construction
 
 type SFProjParseResult =
     { Parameters: string list
-      ManifestPath: string
+      ManifestPath: string option
       Services: string list }
 
-let private buildResult baseFolder (document: XDocument) =
+let private getItemInclude (x: ProjectItemElement) = x.Include
+
+let private ofType itemType (x: ProjectItemElement) = x.ItemType = itemType
+
+let private buildResult baseFolder (document: ProjectRootElement) =
     let relativeToBase p =
         Path.Combine(baseFolder, p) |> Path.GetFullPath
 
-    let xNameBuilder' =
-        xNameBuilder (document.Root.GetDefaultNamespace())
-
     let parameters =
-        xNameBuilder' "None"
-        |> document.Descendants
-        |> Seq.filter
-            (getAttrValue "Include"
-             >> contains "ApplicationParameters")
-        |> Seq.map (getAttrValue "Include" >> relativeToBase)
+        document.Items
+        |> Seq.filter (ofType "None")
+        |> Seq.map getItemInclude
+        |> Seq.filter (contains "ApplicationParameters")
+        |> Seq.map relativeToBase
         |> Seq.toList
 
-    let node =
-        xNameBuilder' "None"
-        |> document.Descendants
-        |> Seq.find
-            (getAttrValue "Include"
-             >> contains "ApplicationManifest")
-
     let manifestPath =
-        node |> getAttrValue "Include" |> relativeToBase
+        document.Items
+        |> Seq.filter (ofType "None")
+        |> Seq.map getItemInclude
+        |> Seq.tryFind (contains "ApplicationManifest")
+        |> Option.map relativeToBase
 
     let services =
-        xNameBuilder' "ProjectReference"
-        |> document.Descendants
-        |> Seq.map (getAttrValue "Include" >> relativeToBase)
+        document.Items
+        |> Seq.filter (ofType "ProjectReference")
+        |> Seq.map (getItemInclude >> relativeToBase)
         |> Seq.toList
 
     { Parameters = parameters
@@ -49,7 +46,7 @@ let private buildResult baseFolder (document: XDocument) =
 let parseSFProj (path: string) =
     try
         path
-        |> XDocument.Load
+        |> ProjectRootElement.Open
         |> buildResult (Path.GetDirectoryName(path))
         |> Ok
     with e -> Error e

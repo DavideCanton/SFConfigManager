@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Types.fs" />
+    <EmbeddedResource Include="Schema/ServiceFabricServiceModel.xsd" />
+  </ItemGroup>
+
+  <ItemGroup>
+      <PackageReference Include="FSharp.Data" Version="3.3.3" />
+  </ItemGroup>
+
+</Project>

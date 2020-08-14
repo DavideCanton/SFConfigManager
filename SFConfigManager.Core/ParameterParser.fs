@@ -1,8 +1,9 @@
 module SFConfigManager.Core.ParameterParser
 
-open System.Xml.Linq
-open SFConfigManager.Core.Common
+open SFConfigManager.Data
 open FSharpPlus
+open Common
+open System.IO
 
 type ParameterResultEntry =
     { ServiceName: string
@@ -19,28 +20,30 @@ let private splitTwo (sep: string) (value: string) =
 
 let private extract (p: string) = splitTwo "_" p
 
-let private getItems ns element =
-    let value = getAttrValue "Value" element
-    getAttrValue "Name" element
-    |> extract
-    |> Option.map (fun (sn, pn) ->
-        { ServiceName = sn
-          ParamName = pn
-          ParamValue = value })
+let private mapParam (param: FabricTypes.Parameter) =
+    let value = param.Value
 
-let private buildResult (doc: XDocument) =
-    let ns = doc.Root.GetDefaultNamespace()
+    param.Name
+        |> extract
+        |> Option.map (fun (sn, pn) ->
+            { ServiceName = sn
+              ParamName = pn
+              ParamValue = value })
 
-    let parameters =
-        xNameBuilder ns "Parameter"
-        |> doc.Descendants
-        |> Seq.map (getItems ns)
-        |> Seq.choose id
-        |> Seq.toList
+let private extractParams (root: FabricTypes.Application) =
+    let p = root.Parameters
+            |> Seq.map mapParam
+            |> Seq.choose id
+            |> Seq.toList
+    Ok { Params = p }
 
-    { Params = parameters }
+let private getParameters (x: FabricTypes.Choice) =
+    match x.Application with
+    | None -> Error InvalidFileException
+    | Some root -> extractParams root
+        
 
 let parseParameters (path: string) =
     try
-        path |> XDocument.Load |> buildResult |> Ok
+        path |> File.ReadAllText |> FabricTypes.Parse |> getParameters
     with e -> Error e

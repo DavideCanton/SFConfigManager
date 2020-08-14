@@ -5,6 +5,8 @@ open FSharpPlus
 
 type SolutionParseResult = { SfProjList: string list }
 
+let private buildResult projectList = { SfProjList = projectList }
+
 let parseSolution path =
     let absPathGetter (p: ProjectInSolution) = p.AbsolutePath
     try
@@ -12,6 +14,6 @@ let parseSolution path =
         |> Seq.map absPathGetter
         |> Seq.filter (String.endsWith "sfproj")
         |> Seq.toList
-        |> fun s -> { SfProjList = s }
+        |> buildResult
         |> Ok
     with e -> Error e

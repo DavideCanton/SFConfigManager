@@ -16,15 +16,15 @@ let handleParsedSfProj (parsed: Result<SFProjParser.SFProjParseResult, exn>) =
     | Ok result ->
         printfn "Services: %A" result.Services
         printfn "Param Files: %A" result.Parameters
-        printfn "Manifest Path: %s" result.ManifestPath
-    | Error e -> printfn "Error: %s" e.Message
+        printfn "Manifest Path: %s" result.ManifestPath.Value
+    | Error e -> printfn "Error: %A" e
 
 let parseParameterFile (path: string) =
     let parsed = ParameterParser.parseParameters path
     printfn "File: %s" (Path.GetFileName path)
     match parsed with
     | Ok result -> result.Params |> List.iter (printfn "%A")
-    | Error e -> printfn "Error: %s" e.Message
+    | Error e -> printfn "Error: %A" e
     ()
 
 let handleParameters (parsed: Result<SFProjParser.SFProjParseResult, exn>) =
