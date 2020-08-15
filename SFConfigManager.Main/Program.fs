@@ -2,8 +2,54 @@
 
 open SFConfigManager.Core
 open System.IO
+open Argu
 
 exception ProjectNotFoundException
+
+
+type AddArgs =
+    | Section of sectionName:string
+    | Parameter of addParams:string * string * string
+
+    interface IArgParserTemplate with
+        member this.Usage =
+            match this with
+            | Section _ -> "Adds a section"
+            | Parameter _ -> "Adds a parameter to an existing section"
+
+and RemoveArgs =
+    | Section of sectionName:string
+    | Parameter of name:string
+
+    interface IArgParserTemplate with
+        member this.Usage =
+            match this with
+            | Section _ -> "Removes a section"
+            | Parameter _ -> "Removes a parameter from an existing section"
+
+and GetArgs =
+    | Parameter of getParams:string * string
+
+    interface IArgParserTemplate with
+        member this.Usage =
+            match this with
+            | Parameter _ -> "Gets parameter value"
+
+and SfConfigArgs =
+    | Version
+    | [<EqualsAssignment>] SolutionPath of path:string option
+    | [<CliPrefix(CliPrefix.None)>] Add of ParseResults<AddArgs>
+    | [<CliPrefix(CliPrefix.None)>] Get of ParseResults<GetArgs>
+    | [<CliPrefix(CliPrefix.None)>] Remove of ParseResults<RemoveArgs>
+
+    interface IArgParserTemplate with
+        member this.Usage =
+            match this with
+            | Version -> "Prints version"
+            | SolutionPath _ -> "Solution path"
+            | Add _ -> "Adds"
+            | Get _ -> "Gets"
+            | Remove _ -> "Removes"
 
 let getSfProj path =
     let projs = SolutionParser.parseSolution path
@@ -42,10 +88,13 @@ let mainBody path =
 
 [<EntryPoint>]
 let main argv =
-    match argv |> Array.toList with
-    | path :: _ ->
-        mainBody path
+    let parser = ArgumentParser.Create<SfConfigArgs>(programName = "sfconfig.exe")
+
+    try
+        let result = parser.ParseCommandLine argv
+        let path = result.GetResult SolutionPath
+        mainBody path.Value
         0
-    | _ ->
-        eprintfn "No arguments provided"
+    with _ ->
+        printfn "%s" <| parser.PrintUsage()
         1
