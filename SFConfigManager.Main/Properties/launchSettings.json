@@ -2,7 +2,7 @@
   "profiles": {
     "SFConfigManager.Main": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\Users\\Davide\\source\\repos\\ProveServiceFabric\\ProvaSF.sln"
+      "commandLineArgs": "-s C:\\Users\\Davide\\source\\repos\\ProveServiceFabric\\ProvaSF.sln get --servicename ProvaSFWebAPI --name InstanceCount"
     }
   }
 }

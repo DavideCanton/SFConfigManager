@@ -10,7 +10,7 @@ type ParameterResultEntry =
       ParamName: string
       ParamValue: string }
 
-type ParametersParseResult = { Params: ParameterResultEntry list }
+type ParametersParseResult = { Params: ParameterResultEntry list; FileName: string }
 
 let private splitTwo (sep: string) (value: string) =
     let list = String.split [ sep ] value |> Seq.toList
@@ -30,20 +30,21 @@ let private mapParam (param: FabricTypes.Parameter) =
               ParamName = pn
               ParamValue = value })
 
-let private extractParams (root: FabricTypes.Application) =
+let private extractParams fileName (root: FabricTypes.Application) =
     let p = root.Parameters
             |> Seq.map mapParam
             |> Seq.choose id
             |> Seq.toList
-    Ok { Params = p }
+    Ok { Params = p; FileName = fileName }
 
-let private getParameters (x: FabricTypes.Choice) =
+let private getParameters fileName (x: FabricTypes.Choice) =
     match x.Application with
     | None -> Error InvalidFileException
-    | Some root -> extractParams root
+    | Some root -> extractParams fileName root
         
 
 let parseParameters (path: string) =
     try
-        path |> File.ReadAllText |> FabricTypes.Parse |> getParameters
+        let fileName = Path.GetFileNameWithoutExtension path
+        path |> File.ReadAllText |> FabricTypes.Parse |> getParameters fileName
     with e -> Error e
