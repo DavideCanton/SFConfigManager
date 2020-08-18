@@ -1,4 +1,4 @@
-module SFConfigManager.Data
+namespace SFConfigManager.Data
 
 open FSharp.Data
 

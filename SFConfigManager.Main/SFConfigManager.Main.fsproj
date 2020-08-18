@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Arguments.fs" />
+    <Compile Include="Arguments\ArgumentDefinitions.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SFConfigManager.Core\SFConfigManager.Core.fsproj" />
+    <ProjectReference Include="..\SFConfigManager.Extensions\SFConfigManager.Extensions.fsproj" />
   </ItemGroup>
 
 </Project>

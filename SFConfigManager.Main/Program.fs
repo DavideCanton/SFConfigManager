@@ -1,95 +1,123 @@
-﻿module SFConfigManager.Main.Main
+module SFConfigManager.Main.Program
 
-open SFConfigManager.Core
 open System.IO
 open Argu
-open Arguments
+open SFConfigManager.Main.Arguments
 open FSharpPlus
+open SFConfigManager.Core.Parsers
+open SFConfigManager.Core.Context
+open SFConfigManager.Extensions.OptionExtensions
+open SFConfigManager.Extensions.ResultExtensions
 
 exception ProjectNotFoundException
 exception NoSolutionFoundException
 exception MultipleSolutionsFoundException
 
-let getSfProj path =
-    let projs = SolutionParser.parseSolution path
-    match projs with
-    | Ok ({ SfProjList = (s :: _) }) -> Ok s
-    | _ -> Error ProjectNotFoundException
+module Utils =
+    let getSfProj path =
+        let projs = SolutionParser.parseSolution path
+        match projs with
+        | Ok ({ SfProjList = (s :: _) }) -> SFProjParser.parseSFProj s
+        | _ -> Error ProjectNotFoundException
 
-let handleParsedSfProj (parsed: Result<SFProjParser.SFProjParseResult, exn>) =
-    match parsed with
-    | Ok result ->
-        printfn "Services: %A" result.Services
-        printfn "Param Files: %A" result.Parameters
-        printfn "Manifest Path: %s" result.ManifestPath.Value
-    | Error e -> printfn "Error: %A" e
-
-let parseParameters (parsed: Result<SFProjParser.SFProjParseResult, exn>) =
-    let reducer = flip <| Result.map2 List.cons
+    let parseParameters (parameters: SFProjParser.SFProjParseResult) =
+        let reducer = flip <| Result.map2 List.cons
     
-    match parsed with
-    | Ok { Parameters = parameters } -> 
-        parameters
+        parameters.Parameters
         |> List.map ParameterParser.parseParameters
         |> List.fold reducer (Ok [])
-    | Error e -> Error e
 
-let getParamValue name sectionName serviceName (parameters: ParameterParser.ParametersParseResult) =
-    let paramMatcher (p: ParameterParser.ParameterResultEntry) =
-        p.ServiceName = serviceName &&
-        p.ParamName = (String.concat "_" [sectionName; name] |> String.trim (List.singleton '_'))
+    let getParamValue name section service (parameters: ParameterParser.ParametersParseResult) =
+        let paramMatcher (p: ParameterParser.ParameterResultEntry) =
+            p.ServiceName = service &&
+            p.ParamName = (String.concat "_" [section; name] |> String.trim (List.singleton '_'))
 
-    parameters.Params
-    |> List.tryFind paramMatcher
+        parameters.Params
+        |> List.tryFind paramMatcher
+
+    let getDefaultSolutionPath() =
+        let files = Directory.GetFiles(".", "*.sln")
+        match Array.length files with
+        | 1 -> Ok files.[0]
+        | 0 -> Error NoSolutionFoundException
+        | _ -> Error MultipleSolutionsFoundException
     
+    let throwIfError r =
+        match r with
+        | Ok v -> v
+        | Error e -> raise e
 
-let mainBody path (arguments: ParseResults<SfConfigArgs>) =
-    let sfProj = getSfProj path
-    let parsedSfProj = SFProjParser.parseSFProj (Result.get sfProj)
-    let parameters = parseParameters parsedSfProj |> Result.get
-    // TODO parse settings
-    // TODO parse manifest
+    //let servicesIndexer csProjPaths services =
+    //    let normalizeAndAppendPath p =
+    //        Path.Combine (Path.GetDirectoryName slnPath, 
+    //    services
+    //    |> List.map 
 
-    let isGet = arguments.TryGetResult Get
-    match isGet with
-    | Some g ->
+    let buildContext path service =
+        ContextBuilder.newContext()
+        |> Ok
+        |> Result.bind (fun ctx -> getSfProj path |> Result.map (flip ContextBuilder.withSfProj ctx))
+        |> Result.bind (fun ctx -> parseParameters ctx.sfProj.Value |> Result.map (flip ContextBuilder.withParameters ctx))
+        // TODO missing parse settings
+        |> Result.bind (fun x -> ContextBuilder.build x)
+
+    let getSolutionPath (arguments: ParseResults<SfConfigArgs>) =
+        arguments.TryGetResult Sln 
+        |> Option.defaultWith (getDefaultSolutionPath >> throwIfError)
+   
+module CommandLine =
+    let processCommand command arguments = command arguments
+    
+open Utils
+open CommandLine
+
+let mainBody (arguments: ParseResults<SfConfigArgs>) =
+
+    let get (g: ParseResults<GetArgs>) (root: ParseResults<SfConfigArgs>) =
         let name = g.GetResult (Name, defaultValue= "")
-        let sectionName = g.GetResult (SectionName, defaultValue= "")
-        let serviceName = g.GetResult (ServiceName, defaultValue= "")
+        let section = g.GetResult (Section, defaultValue= "")
+        let service = g.GetResult (Service, defaultValue= "")
+        let path = getSolutionPath root
 
-        let paramPrinter (paramFile: ParameterParser.ParametersParseResult) =
-            let value = getParamValue name sectionName serviceName paramFile
-            match value with
-            | Some v -> printfn "%s: %s" paramFile.FileName v.ParamValue
-            | None -> printfn "%s: not found" paramFile.FileName
+        match buildContext path service with
+        | Ok context ->
+            let paramPrinter (paramFile: ParameterParser.ParametersParseResult) =
+                let value = getParamValue name section service paramFile
+                match value with
+                | Some v -> printfn "%s: %s" paramFile.FileName v.ParamValue
+                | None -> printfn "%s: not found" paramFile.FileName
+    
+            printfn "Value of [Service=%s; Section=%s; Name=%s]" service section name
+            List.iter paramPrinter context.parameters
+            Ok ()
+        | Error e -> Error e
+    
+    let add (a: ParseResults<AddArgs>) (root: ParseResults<SfConfigArgs>) =
+        Ok ()
 
-        printfn "Value of [Service=%s; Section=%s; Name=%s]" serviceName sectionName name
-        List.iter paramPrinter parameters
-        
-    | _ -> ()
+    match arguments.GetSubCommand() with
+    | Add r -> processCommand add r arguments
+    | Get r -> processCommand get r arguments
+    // ignore after
+    | Sln _ -> Ok ()
+    | Version -> Ok ()
 
-
-let getDefaultSolutionPath() =
-    let files = Directory.GetFiles(".", "*.sln")
-    match Array.length files with
-    | 1 -> Ok files.[0]
-    | 0 -> Error NoSolutionFoundException
-    | _ -> Error MultipleSolutionsFoundException
-
-let throwIfError r =
-    match r with
-    | Ok v -> v
-    | Error e -> raise e
 
 [<EntryPoint>]
 let main argv =
-    let parser = ArgumentParser.Create<SfConfigArgs>(programName = "sfconfig.exe")
-
-    try
+    let res = () |> Result.protect (fun () ->
+        let parser = ArgumentParser.Create<SfConfigArgs>(programName = "sfconfig.exe", errorHandler = ProcessExiter())
         let result = parser.ParseCommandLine argv
-        let path = result.GetResult Sln |> Option.defaultWith (getDefaultSolutionPath >> throwIfError)
-        mainBody path result
-        0
-    with e ->
+
+        if result.Contains Version then
+            printfn "1.0.0"
+            Ok ()
+        else
+            mainBody result
+    )
+
+    match Result.flatten res with
+    | Ok _ -> 0
+    | Error e ->
         eprintfn "Error: %s" e.Message
         1

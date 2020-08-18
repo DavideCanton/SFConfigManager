@@ -1,4 +1,4 @@
-﻿module SFConfigManager.Core.SettingsParser
+module SFConfigManager.Core.Parsers.SettingsParser
 
 open System.IO
 open FSharpPlus

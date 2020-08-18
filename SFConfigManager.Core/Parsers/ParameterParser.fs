@@ -1,9 +1,9 @@
-module SFConfigManager.Core.ParameterParser
+module SFConfigManager.Core.Parsers.ParameterParser
 
 open SFConfigManager.Data
 open FSharpPlus
-open Common
 open System.IO
+open SFConfigManager.Core.Common
 
 type ParameterResultEntry =
     { ServiceName: string
@@ -26,9 +26,9 @@ let private mapParam (param: FabricTypes.Parameter) =
     param.Name
         |> extract
         |> Option.map (fun (sn, pn) ->
-            { ServiceName = sn
-              ParamName = pn
-              ParamValue = value })
+              { ServiceName = sn
+                ParamName = pn
+                ParamValue = value })
 
 let private extractParams fileName (root: FabricTypes.Application) =
     let p = root.Parameters

@@ -1,7 +1,7 @@
-﻿module SFConfigManager.Core.SFProjParser
+module SFConfigManager.Core.Parsers.SFProjParser
 
+open SFConfigManager.Core
 open System.IO
-open SFConfigManager.Core.Common
 open Microsoft.Build.Construction
 
 type SFProjParseResult =
@@ -21,7 +21,7 @@ let private buildResult baseFolder (document: ProjectRootElement) =
         document.Items
         |> Seq.filter (ofType "None")
         |> Seq.map getItemInclude
-        |> Seq.filter (contains "ApplicationParameters")
+        |> Seq.filter (Common.contains "ApplicationParameters")
         |> Seq.map relativeToBase
         |> Seq.toList
 
@@ -29,7 +29,7 @@ let private buildResult baseFolder (document: ProjectRootElement) =
         document.Items
         |> Seq.filter (ofType "None")
         |> Seq.map getItemInclude
-        |> Seq.tryFind (contains "ApplicationManifest")
+        |> Seq.tryFind (Common.contains "ApplicationManifest")
         |> Option.map relativeToBase
 
     let services =

@@ -1,4 +1,4 @@
-﻿module SFConfigManager.Core.Common
+module SFConfigManager.Core.Common
 
 exception InvalidFileException
 
