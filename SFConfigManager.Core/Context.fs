@@ -5,8 +5,9 @@ open FSharpPlus
 
 type Context = 
     { sfProj: SFProjParser.SFProjParseResult
-      settings: SettingsParser.SettingsParseResult
+      settings: SettingsParser.SettingsParseResult option
       parameters: ParameterParser.ParametersParseResult list
+      manifest: ManifestParser.ManifestParseResult
     }
 
 exception IncompleteContextBuildRequest
@@ -16,24 +17,28 @@ module ContextBuilder =
         { sfProj: SFProjParser.SFProjParseResult option
           settings: SettingsParser.SettingsParseResult option
           parameters: ParameterParser.ParametersParseResult list option
+          manifest: ManifestParser.ManifestParseResult option
         }
     
-    let newContext() = { sfProj = None; settings = None; parameters = None }
+    let newContext() = { sfProj = None; settings = None; parameters = None; manifest = None }
 
-    let withSfProj sfProj (ctx: ContextBuilderImpl) = { ctx with sfProj = Some sfProj }
-    let withSettings settings (ctx: ContextBuilderImpl) = { ctx with settings = Some settings }
-    let withParameters parameters (ctx: ContextBuilderImpl) = { ctx with parameters = Some parameters }
+    let withSfProj (ctx: ContextBuilderImpl) sfProj = { ctx with sfProj = Some sfProj }
+    let withSettings (ctx: ContextBuilderImpl) settings = { ctx with settings = settings }
+    let withParameters (ctx: ContextBuilderImpl) parameters = { ctx with parameters = Some parameters }
+    let withManifest (ctx: ContextBuilderImpl) manifest = { ctx with manifest = Some manifest }
 
     let build ctx: Result<Context, exn> =
         let vals = [
             ctx.sfProj |> Option.map ignore
-            ctx.settings |> Option.map ignore
             ctx.parameters |> Option.map ignore
+            ctx.manifest |> Option.map ignore
         ]
 
         if List.exists Option.isNone vals then
             Error IncompleteContextBuildRequest
         else 
             Ok { sfProj = ctx.sfProj.Value
-                 settings = ctx.settings.Value
-                 parameters = ctx.parameters.Value }
+                 settings = ctx.settings
+                 parameters = ctx.parameters.Value
+                 manifest = ctx.manifest.Value
+               }

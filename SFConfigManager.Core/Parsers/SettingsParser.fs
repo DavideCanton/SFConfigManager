@@ -41,12 +41,12 @@ let parseSettings path =
     let serviceManifestFile = Path.Combine("PackageRoot", "ServiceManifest.xml")
     let appendPath = flip <| curry Path.Combine
     try
-        let settings = Path.GetDirectoryName path            
+        let settings = path            
                        |> appendPath settingsFile
                        |> File.ReadAllText
                        |> FabricTypes.Parse
 
-        let serviceManifest = Path.GetDirectoryName path            
+        let serviceManifest = path            
                               |> appendPath serviceManifestFile
                               |> File.ReadAllText
                               |> FabricTypes.Parse

@@ -4,6 +4,7 @@ open System.IO
 open Argu
 open SFConfigManager.Main.Arguments
 open FSharpPlus
+open SFConfigManager.Core
 open SFConfigManager.Core.Parsers
 open SFConfigManager.Core.Context
 open SFConfigManager.Extensions.OptionExtensions
@@ -27,12 +28,12 @@ module Utils =
         |> List.map ParameterParser.parseParameters
         |> List.fold reducer (Ok [])
 
-    let getParamValue name section service (parameters: ParameterParser.ParametersParseResult) =
-        let paramMatcher (p: ParameterParser.ParameterResultEntry) =
+    let getParamValue name section service (parameters: Common.ParameterResultEntry list) =
+        let paramMatcher (p: Common.ParameterResultEntry) =
             p.ServiceName = service &&
             p.ParamName = (String.concat "_" [section; name] |> String.trim (List.singleton '_'))
 
-        parameters.Params
+        parameters
         |> List.tryFind paramMatcher
 
     let getDefaultSolutionPath() =
@@ -60,14 +61,15 @@ module Utils =
     let buildContext path service =
         ContextBuilder.newContext()
         |> Ok
-        |> Result.bind (fun ctx -> getSfProj path |> Result.map (flip ContextBuilder.withSfProj ctx))
-        |> Result.bind (fun ctx -> parseParameters ctx.sfProj.Value |> Result.map (flip ContextBuilder.withParameters ctx))
+        |> Result.bind (fun ctx -> getSfProj path |> Result.map (ContextBuilder.withSfProj ctx))
+        |> Result.bind (fun ctx -> parseParameters ctx.sfProj.Value |> Result.map (ContextBuilder.withParameters ctx))
+        |> Result.bind (fun ctx -> ManifestParser.parseManifest ctx.sfProj.Value.ManifestPath |> Result.map (ContextBuilder.withManifest ctx))
         |> Result.bind (fun ctx -> 
             parseSettings ctx.sfProj.Value.FilePath ctx.sfProj.Value.Services
-            |> Result.map (List.find (fun x -> x.Service = service))
-            |> Result.map (flip ContextBuilder.withSettings ctx)
+            |> Result.map (List.tryFind (fun x -> x.Service = service))
+            |> Result.map (ContextBuilder.withSettings ctx)
         )
-        |> Result.bind (fun x -> ContextBuilder.build x)
+        |> Result.bind ContextBuilder.build
 
     let getSolutionPath (arguments: ParseResults<SfConfigArgs>) =
         arguments.TryGetResult Sln 
@@ -89,14 +91,15 @@ let mainBody (arguments: ParseResults<SfConfigArgs>) =
 
         match buildContext path service with
         | Ok context ->
-            let paramPrinter (paramFile: ParameterParser.ParametersParseResult) =
-                let value = getParamValue name section service paramFile
+            let paramPrinter fileName parameters =
+                let value = getParamValue name section service parameters
                 match value with
-                | Some v -> printfn "%s: %s" paramFile.FileName v.ParamValue
-                | None -> printfn "%s: not found" paramFile.FileName
+                | Some v -> printfn "%s: %s" fileName v.ParamValue
+                | None -> printfn "%s: not found" fileName
     
             printfn "Value of [Service=%s; Section=%s; Name=%s]" service section name
-            List.iter paramPrinter context.parameters
+            context.parameters |> List.iter (fun x -> paramPrinter x.FileName x.Params)
+            paramPrinter "Default Value" context.manifest.Parameters
             Ok ()
         | Error e -> Error e
     

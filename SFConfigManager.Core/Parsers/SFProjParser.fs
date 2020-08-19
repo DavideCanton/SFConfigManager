@@ -7,7 +7,7 @@ open Microsoft.Build.Construction
 type SFProjParseResult =
     { FilePath: string
       Parameters: string list
-      ManifestPath: string option
+      ManifestPath: string
       Services: string list }
 
 let private getItemInclude (x: ProjectItemElement) = x.Include
@@ -31,8 +31,8 @@ let private buildResult sfProjPath (document: ProjectRootElement) =
         document.Items
         |> Seq.filter (ofType "None")
         |> Seq.map getItemInclude
-        |> Seq.tryFind (Common.contains "ApplicationManifest")
-        |> Option.map relativeToBase
+        |> Seq.find (Common.contains "ApplicationManifest")
+        |> relativeToBase
 
     let services =
         document.Items
