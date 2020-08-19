@@ -80,6 +80,7 @@ module CommandLine =
     
 open Utils
 open CommandLine
+open System.Xml.Linq
 
 let mainBody (arguments: ParseResults<SfConfigArgs>) =
 
@@ -96,6 +97,20 @@ let mainBody (arguments: ParseResults<SfConfigArgs>) =
                 match value with
                 | Some v -> printfn "%s: %s" fileName v.ParamValue
                 | None -> printfn "%s: not found" fileName
+
+            // write file try
+            //using (File.Open("./prova.xml", FileMode.OpenOrCreate)) (fun stream ->
+            //    let q = Array.last context.manifest.RootElement.Parameters.Value.Parameters
+            //    let child = XElement(q.XElement)
+            //    child.SetAttributeValue(XName.Get "Name", "GNIIII")
+            //    child.SetAttributeValue(XName.Get "DefaultValue", "GNEEEEE")                
+            //    q.XElement.AddAfterSelf(
+            //        XText("\r\n\t"),
+            //        child,
+            //        XText("\r\n\t")
+            //    )
+            //    context.manifest.RootElement.XElement.Save(stream)
+            //)
     
             printfn "Value of [Service=%s; Section=%s; Name=%s]" service section name
             context.parameters |> List.iter (fun x -> paramPrinter x.FileName x.Params)

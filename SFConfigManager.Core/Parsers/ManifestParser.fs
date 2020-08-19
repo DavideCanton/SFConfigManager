@@ -3,9 +3,11 @@
 open System.IO
 open SFConfigManager.Data
 open SFConfigManager.Core.Common
+open System.Xml.Linq
 
 type ManifestParseResult = {
     Parameters: ParameterResultEntry list
+    RootElement: FabricTypes.ApplicationManifest
 }
 
 let private parseManifestData (root: FabricTypes.ApplicationManifest) =
@@ -17,6 +19,7 @@ let private parseManifestData (root: FabricTypes.ApplicationManifest) =
                      |> Seq.map (Parameters.P2 >> mapParam)
                      |> Seq.choose id
                      |> Seq.toList
+        RootElement = root
     }
 
 let private tryParseManifestData (root: FabricTypes.Choice) =

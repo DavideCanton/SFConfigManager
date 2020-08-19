@@ -4,11 +4,14 @@ open System.IO
 open FSharpPlus
 open SFConfigManager.Data
 open SFConfigManager.Core.Common
+open System.Xml.Linq
 
 type SettingsParseResult =
     { 
         Service: string
-        Sections: Map<string, (string * string) list> 
+        Sections: Map<string, (string * string) list>
+        RootServiceElement: FabricTypes.ServiceManifest
+        RootSettingsElement: FabricTypes.Settings2
     }
 
 let private extractEntry (section: FabricTypes.Section2) =
@@ -28,6 +31,8 @@ let private extractSettings (settings: FabricTypes.Settings2) (manifest: FabricT
     { 
         Sections = sections
         Service = manifest.ServiceTypes.StatelessServiceTypes.[0].ServiceTypeName
+        RootServiceElement = manifest
+        RootSettingsElement = settings
     }
 
 let private buildResult (settings: FabricTypes.Choice) (serviceManifest: FabricTypes.Choice) =

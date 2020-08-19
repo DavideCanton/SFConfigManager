@@ -2,17 +2,6 @@
 
 open Argu
 
-type AddSectionArgs =
-    | [<ExactlyOnce; MainCommand>] Service of string
-    | [<ExactlyOnce>] Name of string
-
-    interface IArgParserTemplate with
-        member this.Usage =
-            match this with
-            | Name _ -> "Section name"
-            | Service _ -> "Service name"
-
-
 type AddParameterArgs =
     | [<ExactlyOnce; MainCommand>] Service of string
     | [<ExactlyOnce>] Name of string
@@ -28,14 +17,12 @@ type AddParameterArgs =
             | Service _ -> "Service name"
 
 type AddArgs =
-    | [<CustomCommandLine("section")>] Section of ParseResults<AddSectionArgs>
     | [<CustomCommandLine("param")>] Parameter of ParseResults<AddParameterArgs>
 
     interface IArgParserTemplate with
         member this.Usage =
             match this with
-            | Section _ -> "Adds a section"
-            | Parameter _ -> "Adds a parameter to an existing section"
+            | Parameter _ -> "Adds a parameter to a section"
 
 type GetArgs =
     | [<ExactlyOnce; MainCommand>] Service of string
