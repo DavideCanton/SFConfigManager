@@ -6,7 +6,10 @@ open SFConfigManager.Data
 open SFConfigManager.Core.Common
 
 type SettingsParseResult =
-    { Sections: Map<string, (string * string) list> }
+    { 
+        Service: string
+        Sections: Map<string, (string * string) list> 
+    }
 
 let private extractEntry (section: FabricTypes.Section2) =
     let name = section.Name
@@ -16,27 +19,38 @@ let private extractEntry (section: FabricTypes.Section2) =
         |> Seq.toList
     (name, p)
 
-let private extractSettings (root: FabricTypes.Settings2) =
+let private extractSettings (settings: FabricTypes.Settings2) (manifest: FabricTypes.ServiceManifest) =
     let sections = 
-        root.Sections
+        settings.Sections
         |> Seq.map extractEntry
         |> Map.ofSeq
     
-    { Sections = sections }
+    { 
+        Sections = sections
+        Service = manifest.ServiceTypes.StatelessServiceTypes.[0].ServiceTypeName
+    }
 
-let private buildResult (x: FabricTypes.Choice) =
-    match x.Settings with
-    | None -> Error InvalidFileException
-    | Some root -> Ok <| extractSettings root
+let private buildResult (settings: FabricTypes.Choice) (serviceManifest: FabricTypes.Choice) =
+    match (settings.Settings, serviceManifest.ServiceManifest) with
+    | (Some settingsRoot, Some manifestRoot) -> Ok <| extractSettings settingsRoot manifestRoot
+    | _ -> Error InvalidFileException
 
 
 let parseSettings path =
     let settingsFile = Path.Combine("PackageRoot", "Config", "Settings.xml")
+    let serviceManifestFile = Path.Combine("PackageRoot", "ServiceManifest.xml")
     let appendPath = flip <| curry Path.Combine
     try
-        Path.GetDirectoryName path            
-        |> appendPath settingsFile
-        |> File.ReadAllText
-        |> FabricTypes.Parse
-        |> buildResult
+        let settings = Path.GetDirectoryName path            
+                       |> appendPath settingsFile
+                       |> File.ReadAllText
+                       |> FabricTypes.Parse
+
+        let serviceManifest = Path.GetDirectoryName path            
+                              |> appendPath serviceManifestFile
+                              |> File.ReadAllText
+                              |> FabricTypes.Parse
+
+
+        buildResult settings serviceManifest
     with e -> Error e

@@ -5,7 +5,8 @@ open System.IO
 open Microsoft.Build.Construction
 
 type SFProjParseResult =
-    { Parameters: string list
+    { FilePath: string
+      Parameters: string list
       ManifestPath: string option
       Services: string list }
 
@@ -13,7 +14,8 @@ let private getItemInclude (x: ProjectItemElement) = x.Include
 
 let private ofType itemType (x: ProjectItemElement) = x.ItemType = itemType
 
-let private buildResult baseFolder (document: ProjectRootElement) =
+let private buildResult sfProjPath (document: ProjectRootElement) =
+    let baseFolder = Path.GetDirectoryName sfProjPath
     let relativeToBase p =
         Path.Combine(baseFolder, p) |> Path.GetFullPath
 
@@ -38,7 +40,8 @@ let private buildResult baseFolder (document: ProjectRootElement) =
         |> Seq.map (getItemInclude >> relativeToBase)
         |> Seq.toList
 
-    { Parameters = parameters
+    { FilePath = sfProjPath
+      Parameters = parameters
       ManifestPath = manifestPath
       Services = services }
 
@@ -47,6 +50,6 @@ let parseSFProj (path: string) =
     try
         path
         |> ProjectRootElement.Open
-        |> buildResult (Path.GetDirectoryName(path))
+        |> buildResult path
         |> Ok
     with e -> Error e

@@ -5,12 +5,10 @@ open FSharpPlus
 
 type SolutionParseResult = { 
     SfProjList: string list
-    CsProjList: string list 
 }
 
-let private buildResult sfProjs csProjs = { 
+let private buildResult sfProjs = { 
     SfProjList = sfProjs
-    CsProjList = csProjs 
 }
 
 let parseSolution path =
@@ -20,11 +18,7 @@ let parseSolution path =
                       |> Seq.map absPathGetter
                       |> Seq.filter (String.endsWith "sfproj")
                       |> Seq.toList
-        let csProjs = SolutionFile.Parse(path).ProjectsInOrder
-                      |> Seq.map absPathGetter
-                      |> Seq.filter (String.endsWith "sfproj")
-                      |> Seq.toList
 
-        buildResult sfProjs csProjs |> Ok
+        buildResult sfProjs |> Ok
 
     with e -> Error e

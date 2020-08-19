@@ -47,18 +47,26 @@ module Utils =
         | Ok v -> v
         | Error e -> raise e
 
-    //let servicesIndexer csProjPaths services =
-    //    let normalizeAndAppendPath p =
-    //        Path.Combine (Path.GetDirectoryName slnPath, 
-    //    services
-    //    |> List.map 
+    let parseSettings sfProjPath services =
+        let reducer = flip <| Result.map2 List.cons
+        let normalizeAndAppendPath p =
+            Path.Combine (Path.GetDirectoryName sfProjPath, p) |> Path.GetFullPath |> Path.GetDirectoryName
+        
+        services
+        |> List.map normalizeAndAppendPath
+        |> List.map SettingsParser.parseSettings
+        |> List.fold reducer (Ok [])
 
     let buildContext path service =
         ContextBuilder.newContext()
         |> Ok
         |> Result.bind (fun ctx -> getSfProj path |> Result.map (flip ContextBuilder.withSfProj ctx))
         |> Result.bind (fun ctx -> parseParameters ctx.sfProj.Value |> Result.map (flip ContextBuilder.withParameters ctx))
-        // TODO missing parse settings
+        |> Result.bind (fun ctx -> 
+            parseSettings ctx.sfProj.Value.FilePath ctx.sfProj.Value.Services
+            |> Result.map (List.find (fun x -> x.Service = service))
+            |> Result.map (flip ContextBuilder.withSettings ctx)
+        )
         |> Result.bind (fun x -> ContextBuilder.build x)
 
     let getSolutionPath (arguments: ParseResults<SfConfigArgs>) =
