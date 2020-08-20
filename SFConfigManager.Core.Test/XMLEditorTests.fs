@@ -41,10 +41,18 @@ type XMLEditorTests() =
 
         use stream = File.OpenRead inputPath
         let xml = XDocument.Load(stream)
-        let target = xml.Descendants(!? "item") |> Seq.find (fun (n: XElement) -> n.Attribute(!? "id").Value = "target")
+
+        let target =
+            xml.Descendants(!? "item")
+            |> Seq.tryFind (fun (n: XElement) -> n.Attribute(!? "id").Value = "target")
+
+        target.IsSome |> should equal true
+
+        let target = target.Value
+
         let child = XElement(target)
         child.SetAttributeValue(!? "id", "added")
-        addTagAfter target child 1
+        addTagAfter target child
 
         let expected = File.ReadAllText outputPath
 
