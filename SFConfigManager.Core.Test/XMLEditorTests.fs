@@ -7,45 +7,50 @@ open System.Xml.Linq
 open System.IO
 open SFConfigManager.Core.Editors.XMLEditor
 open System.Text
-open System
 
 let inline (!?) name = XName.Get name
 
-[<SetUp>]
-let Setup () = ()
+let makeTestFolder s = Path.Combine("./Data", s)
+let makeInputFolder s = Path.Combine(makeTestFolder s, "Input")
+let makeOutputFolder s = Path.Combine(makeTestFolder s, "Output")
 
-[<Test>]
-let ``addTagAfter should work correctly`` () =
-    let path = "./Data/Test01.xml"
-    use stream = File.OpenRead path
-    let xml = XDocument.Load(stream)
-    let listNode = xml.Root.Element(!? "list")
-    let lastChild = Seq.last <| listNode.Elements(!? "item")
-    let child = XElement(lastChild)
-    child.SetAttributeValue(!? "id", 4)
-    addTagAfter lastChild child 1
+let buildTestSource name =
+    let inputFolder = makeInputFolder name
+    let outputFolder = makeOutputFolder name
 
-    let expectedXml = """<?xml version="1.0" encoding="utf-8"?>
-<root>
-  <list>
-    <item id="1" />
-    <item id="2" />
-    <item id="3" />
-    <item id="4" />
-  </list>
-  <list>
-    <item id="1" />
-    <item id="2" />
-    </list>
-</root>
-"""
+    let makeTuple (n: string) =
+        (Path.GetFileNameWithoutExtension n, Path.Combine(inputFolder, n), Path.Combine(outputFolder, n))
 
-    let expected =
-        String.replace "\n" Environment.NewLine expectedXml
+    let makeTestCase (fileName, inputPath, outputPath) =
+        TestCaseData(inputPath, outputPath).SetName(name + " test [" + fileName + "]")
 
-    use writeStream =
-        { new StringWriter() with
-            member this.Encoding = Encoding.UTF8 }
+    Directory.GetFiles(inputFolder, "*.xml")
+    |> List.ofArray
+    |> List.map (Path.GetFileName >> makeTuple >> makeTestCase)
 
-    xml.Save(writeStream)
-    writeStream.ToString() |> should equal expected
+[<TestFixture>]
+type XMLEditorTests() =
+    [<SetUp>]
+    member _.Setup() = ()
+
+    static member AddTagAfterSource = buildTestSource "AddTagAfter"
+
+    [<Test>]
+    [<TestCaseSource("AddTagAfterSource")>]
+    member _.AddTagAfterTest inputPath outputPath =
+
+        use stream = File.OpenRead inputPath
+        let xml = XDocument.Load(stream)
+        let target = xml.Descendants(!? "item") |> Seq.find (fun (n: XElement) -> n.Attribute(!? "id").Value = "target")
+        let child = XElement(target)
+        child.SetAttributeValue(!? "id", "added")
+        addTagAfter target child 1
+
+        let expected = File.ReadAllText outputPath
+
+        use writeStream =
+            { new StringWriter() with
+                override this.Encoding = Encoding.UTF8 }
+
+        xml.Save(writeStream)
+        writeStream.ToString() |> should equal expected
