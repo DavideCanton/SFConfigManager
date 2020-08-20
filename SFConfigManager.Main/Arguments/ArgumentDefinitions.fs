@@ -38,7 +38,7 @@ type GetArgs =
 
 type SfConfigArgs =
     | [<Unique; AltCommandLine("-V")>] Version
-    | [<AltCommandLine("-s")>] Sln of path:string
+    | [<AltCommandLine("-s")>] Sln of path: string
     | [<CustomCommandLine("add")>] Add of ParseResults<AddArgs>
     | [<CustomCommandLine("get")>] Get of ParseResults<GetArgs>
 

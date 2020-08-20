@@ -3,24 +3,21 @@
 open System.IO
 open SFConfigManager.Data
 open SFConfigManager.Core.Common
-open System.Xml.Linq
 
-type ManifestParseResult = {
-    Parameters: ParameterResultEntry list
-    RootElement: FabricTypes.ApplicationManifest
-}
+type ManifestParseResult =
+    { Parameters: ParameterResultEntry list
+      RootElement: FabricTypes.ApplicationManifest }
 
 let private parseManifestData (root: FabricTypes.ApplicationManifest) =
-    {
-        Parameters = root.Parameters
-                     |> Option.map (fun x -> x.Parameters |> Seq.ofArray)
-                     |> Option.orElse (Some Seq.empty)
-                     |> Option.get
-                     |> Seq.map (Parameters.P2 >> mapParam)
-                     |> Seq.choose id
-                     |> Seq.toList
-        RootElement = root
-    }
+    { Parameters =
+          root.Parameters
+          |> Option.map (fun x -> x.Parameters |> Seq.ofArray)
+          |> Option.orElse (Some Seq.empty)
+          |> Option.get
+          |> Seq.map (Parameters.P2 >> mapParam)
+          |> Seq.choose id
+          |> Seq.toList
+      RootElement = root }
 
 let private tryParseManifestData (root: FabricTypes.Choice) =
     match root.ApplicationManifest with
@@ -28,4 +25,7 @@ let private tryParseManifestData (root: FabricTypes.Choice) =
     | None -> Error InvalidFileException
 
 let parseManifest path =
-    path |> File.ReadAllText |> FabricTypes.Parse |> tryParseManifestData
+    path
+    |> File.ReadAllText
+    |> FabricTypes.Parse
+    |> tryParseManifestData

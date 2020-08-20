@@ -12,16 +12,15 @@ open System
 let inline (!?) name = XName.Get name
 
 [<SetUp>]
-let Setup () =
-    ()
+let Setup () = ()
 
 [<Test>]
 let ``addTagAfter should work correctly`` () =
     let path = "./Data/Test01.xml"
     use stream = File.OpenRead path
     let xml = XDocument.Load(stream)
-    let listNode = xml.Root.Element (!? "list")
-    let lastChild = Seq.last <| listNode.Elements (!? "item")
+    let listNode = xml.Root.Element(!? "list")
+    let lastChild = Seq.last <| listNode.Elements(!? "item")
     let child = XElement(lastChild)
     child.SetAttributeValue(!? "id", 4)
     addTagAfter lastChild child 1
@@ -40,11 +39,13 @@ let ``addTagAfter should work correctly`` () =
     </list>
 </root>
 """
-    let expected = String.replace "\n" Environment.NewLine expectedXml
-    
-    use writeStream = {
-        new StringWriter() with 
-            member this.Encoding = Encoding.UTF8
-    }
+
+    let expected =
+        String.replace "\n" Environment.NewLine expectedXml
+
+    use writeStream =
+        { new StringWriter() with
+            member this.Encoding = Encoding.UTF8 }
+
     xml.Save(writeStream)
     writeStream.ToString() |> should equal expected

@@ -20,26 +20,24 @@ let private splitTwo (sep: string) (value: string) =
 
 let private extract (p: string) = splitTwo "_" p
 
-type Parameters = 
+type Parameters =
     | P1 of FabricTypes.Parameter
     | P2 of FabricTypes.Parameter2
 
-let private getParamName p =
+let (|Param|) p =
     match p with
-    | P1 p -> p.Name
-    | P2 p -> p.Name
+    | P1 p -> (p.Name, p.Value)
+    | P2 p -> (p.Name, p.DefaultValue)
 
-let private getParamValue p =
-    match p with
-    | P1 p -> p.Value
-    | P2 p -> p.DefaultValue
+let private getParamName (Param (name, _)) = name
+let private getParamValue (Param (_, value)) = value
 
 let mapParam (param: Parameters): ParameterResultEntry option =
     let value = getParamValue param
 
     getParamName param
-        |> extract
-        |> Option.map (fun (sn, pn) ->
-              { ServiceName = sn
-                ParamName = pn
-                ParamValue = value })
+    |> extract
+    |> Option.map (fun (sn, pn) ->
+        { ServiceName = sn
+          ParamName = pn
+          ParamValue = value })

@@ -3,42 +3,47 @@
 open SFConfigManager.Core.Parsers
 open FSharpPlus
 
-type Context = 
-    { sfProj: SFProjParser.SFProjParseResult
-      settings: SettingsParser.SettingsParseResult option
-      parameters: ParameterParser.ParametersParseResult list
-      manifest: ManifestParser.ManifestParseResult
-    }
+type Context =
+    { SfProj: SFProjParser.SFProjParseResult
+      Settings: SettingsParser.SettingsParseResult option
+      Parameters: ParameterParser.ParametersParseResult list
+      Manifest: ManifestParser.ManifestParseResult }
 
-exception IncompleteContextBuildRequest
+exception IncompleteContextBuildRequestException
 
 module ContextBuilder =
-    type ContextBuilderImpl = 
-        { sfProj: SFProjParser.SFProjParseResult option
-          settings: SettingsParser.SettingsParseResult option
-          parameters: ParameterParser.ParametersParseResult list option
-          manifest: ManifestParser.ManifestParseResult option
-        }
-    
-    let newContext() = { sfProj = None; settings = None; parameters = None; manifest = None }
+    type ContextBuilderImpl =
+        { SfProj: SFProjParser.SFProjParseResult option
+          Settings: SettingsParser.SettingsParseResult option
+          Parameters: ParameterParser.ParametersParseResult list option
+          Manifest: ManifestParser.ManifestParseResult option }
 
-    let withSfProj (ctx: ContextBuilderImpl) sfProj = { ctx with sfProj = Some sfProj }
-    let withSettings (ctx: ContextBuilderImpl) settings = { ctx with settings = settings }
-    let withParameters (ctx: ContextBuilderImpl) parameters = { ctx with parameters = Some parameters }
-    let withManifest (ctx: ContextBuilderImpl) manifest = { ctx with manifest = Some manifest }
+    let newContext () =
+        { SfProj = None
+          Settings = None
+          Parameters = None
+          Manifest = None }
+
+    let withSfProj (ctx: ContextBuilderImpl) sfProj = { ctx with SfProj = Some sfProj }
+    let withSettings (ctx: ContextBuilderImpl) settings = { ctx with Settings = settings }
+
+    let withParameters (ctx: ContextBuilderImpl) parameters =
+        { ctx with
+              Parameters = Some parameters }
+
+    let withManifest (ctx: ContextBuilderImpl) manifest = { ctx with Manifest = Some manifest }
 
     let build ctx: Result<Context, exn> =
-        let vals = [
-            ctx.sfProj |> Option.map ignore
-            ctx.parameters |> Option.map ignore
-            ctx.manifest |> Option.map ignore
-        ]
+        let vals =
+            [ ctx.SfProj |> Option.map ignore
+              ctx.Parameters |> Option.map ignore
+              ctx.Manifest |> Option.map ignore ]
 
         if List.exists Option.isNone vals then
-            Error IncompleteContextBuildRequest
-        else 
-            Ok { sfProj = ctx.sfProj.Value
-                 settings = ctx.settings
-                 parameters = ctx.parameters.Value
-                 manifest = ctx.manifest.Value
-               }
+            Error IncompleteContextBuildRequestException
+        else
+            Ok
+                { SfProj = ctx.SfProj.Value
+                  Settings = ctx.Settings
+                  Parameters = ctx.Parameters.Value
+                  Manifest = ctx.Manifest.Value }

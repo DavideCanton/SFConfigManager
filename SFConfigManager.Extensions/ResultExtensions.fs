@@ -1,9 +1,10 @@
 ﻿module SFConfigManager.Extensions.ResultExtensions
 
 module Result =
-    let isOk result =
-        match result with
-        | Ok _ -> true
-        | Error _ -> false
+    let (|ResultOk|) = function
+    | Ok _ -> true
+    | Error _ -> false
 
-    let isError r = not << isOk <| r
+    let isOk (ResultOk isOk) = isOk
+
+    let isError (ResultOk isOk) = not isOk
