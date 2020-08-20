@@ -42,7 +42,7 @@ let throwIfError (r: Result<'a, exn>) =
     | Ok v -> v
     | Error e -> raise e
 
-let parseSettings sfProjPath services =
+let parseSettings (sfProjPath: string) services =
     let reducer = flip <| Result.map2 List.cons
 
     let normalizeAndAppendPath p =

@@ -14,7 +14,7 @@ let private getItemInclude (x: ProjectItemElement) = x.Include
 
 let private ofType itemType (x: ProjectItemElement) = x.ItemType = itemType
 
-let private buildResult sfProjPath (document: ProjectRootElement) =
+let private buildResult (sfProjPath: string) (document: ProjectRootElement) =
     let baseFolder = Path.GetDirectoryName sfProjPath
 
     let relativeToBase p =
