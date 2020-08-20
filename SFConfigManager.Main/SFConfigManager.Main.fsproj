@@ -8,6 +8,9 @@
 
   <ItemGroup>
     <Compile Include="Arguments\ArgumentDefinitions.fs" />
+    <Compile Include="Definitions.fs" />
+    <Compile Include="Utils.fs" />
+    <Compile Include="CommandLine.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 

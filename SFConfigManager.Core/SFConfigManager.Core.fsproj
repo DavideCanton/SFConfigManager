@@ -9,6 +9,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common.fs" />
+    <Compile Include="Editors\XMLEditor.fs" />
     <Compile Include="Parsers\ManifestParser.fs" />
     <Compile Include="Parsers\ParameterParser.fs" />
     <Compile Include="Parsers\SettingsParser.fs" />

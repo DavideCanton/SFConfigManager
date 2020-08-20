@@ -1,0 +1,5 @@
+﻿namespace SFConfigManager.Main
+
+exception ProjectNotFoundException
+exception NoSolutionFoundException
+exception MultipleSolutionsFoundException

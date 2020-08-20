@@ -9,7 +9,17 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "SFConfigManager.Main", "SFC
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "SFConfigManager.Data", "SFConfigManager.Data\SFConfigManager.Data.fsproj", "{56F14632-009D-4BC2-81CC-2B3EDA990BD5}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SFConfigManager.Extensions", "SFConfigManager.Extensions\SFConfigManager.Extensions.fsproj", "{E466A72C-B3E9-4F5E-B5EF-867EE60A672B}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "SFConfigManager.Extensions", "SFConfigManager.Extensions\SFConfigManager.Extensions.fsproj", "{E466A72C-B3E9-4F5E-B5EF-867EE60A672B}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SFConfigManager.Core.Test", "SFConfigManager.Core.Test\SFConfigManager.Core.Test.fsproj", "{AC5530B6-1A47-462D-B1E9-00F198F2B583}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Frontend", "Frontend", "{988D5668-34E4-43F0-B02F-1135D6D82756}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{5C32F4AC-6BF3-49FF-B15E-CB324A38B753}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{DC50D787-A500-4E2F-BB97-A3B650A87C42}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{3FEF04A8-4BEE-481B-971D-FE2073856015}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,9 +43,20 @@ Global
 		{E466A72C-B3E9-4F5E-B5EF-867EE60A672B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E466A72C-B3E9-4F5E-B5EF-867EE60A672B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E466A72C-B3E9-4F5E-B5EF-867EE60A672B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC5530B6-1A47-462D-B1E9-00F198F2B583}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC5530B6-1A47-462D-B1E9-00F198F2B583}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC5530B6-1A47-462D-B1E9-00F198F2B583}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC5530B6-1A47-462D-B1E9-00F198F2B583}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{81EAC41E-13FD-42DA-A2F8-82C6202DBDDE} = {5C32F4AC-6BF3-49FF-B15E-CB324A38B753}
+		{1E5F5D47-E3F9-490E-A817-124F0922E6AD} = {988D5668-34E4-43F0-B02F-1135D6D82756}
+		{56F14632-009D-4BC2-81CC-2B3EDA990BD5} = {DC50D787-A500-4E2F-BB97-A3B650A87C42}
+		{E466A72C-B3E9-4F5E-B5EF-867EE60A672B} = {DC50D787-A500-4E2F-BB97-A3B650A87C42}
+		{AC5530B6-1A47-462D-B1E9-00F198F2B583} = {3FEF04A8-4BEE-481B-971D-FE2073856015}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C9B16935-E7F9-41C2-8AA0-E659E32A25E6}
