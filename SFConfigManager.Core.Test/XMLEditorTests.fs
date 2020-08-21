@@ -6,6 +6,7 @@ open FSharpPlus
 open System.Xml.Linq
 open System.IO
 open SFConfigManager.Core.Editors.XMLEditor
+open SFConfigManager.Core.Common
 open System.Text
 
 let makeTestFolder s =
