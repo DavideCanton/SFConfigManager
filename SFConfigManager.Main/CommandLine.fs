@@ -65,31 +65,37 @@ let set (g: ParseResults<SetArgs>) (root: ParseResults<SfConfigArgs>) =
 
     let filterEnvironments (envs: ParametersParseResult list) =
         envs
-        |> List.filter (fun e -> environments.IsEmpty || environments.Contains e.FileName)
+        |> List.filter (fun e ->
+            environments.IsEmpty
+            || environments.Contains e.FileName)
 
     let innerBody context =
         let paramName =
             normalizeParamNameWithService service section name
+
         let xpath =
             sprintf "/empty:Application/empty:Parameters/empty:Parameter[@Name=\"%s\"]" paramName
 
-        let processEnvironment env =            
-            setAttributeByXPath xpath "Value" value env.RootElement.XElement
-            |> Result.bind
-                (konst
-                 <| saveXML env.FilePath env.RootElement.XElement)
+        let processEnvironment env =
+            let actions =
+                [ SetAttribute
+                    { Path = xpath
+                      Name = "Value"
+                      Value = value } ]
+
+            processActionsAndSave actions env.RootElement.XElement env.FilePath
 
         let reducer l r =
             match r with
             | Ok _ -> l
-            | Error e -> e::l
+            | Error e -> e :: l
 
         context.Parameters
         |> filterEnvironments
         |> List.map processEnvironment
         |> List.fold reducer []
-        |> fun l -> if List.isEmpty l then Ok () else Error (SetArgumentsFailedException l)
-          
+        |> fun l -> if List.isEmpty l then Ok() else Error(SetArgumentsFailedException l)
+
     buildContextAndExecute path service innerBody
 
 let setDefault (g: ParseResults<SetDefaultArgs>) (root: ParseResults<SfConfigArgs>) =
@@ -115,9 +121,12 @@ let setDefault (g: ParseResults<SetDefaultArgs>) (root: ParseResults<SfConfigArg
         let xpath =
             sprintf "/empty:ApplicationManifest/empty:Parameters/empty:Parameter[@Name=\"%s\"]" paramName
 
-        setAttributeByXPath xpath "DefaultValue" value manifest.RootElement.XElement
-        |> Result.bind
-            (konst
-             <| saveXML manifest.ManifestPath manifest.RootElement.XElement)
+        let actions =
+            [ SetAttribute
+                { Path = xpath
+                  Name = "DefaultValue"
+                  Value = value } ]
+
+        processActionsAndSave actions manifest.RootElement.XElement manifest.ManifestPath
 
     buildContextAndExecute path service innerBody
