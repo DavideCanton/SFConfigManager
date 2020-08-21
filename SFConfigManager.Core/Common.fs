@@ -2,6 +2,7 @@ module SFConfigManager.Core.Common
 
 open FSharpPlus
 open SFConfigManager.Data
+open System.Xml.Linq
 
 exception InvalidFileException
 
@@ -41,3 +42,8 @@ let mapParam (param: Parameters): ParameterResultEntry option =
         { ServiceName = sn
           ParamName = pn
           ParamValue = value })
+
+let inline (!?) name = XName.Get name
+
+let mapFirst fn (a, b) = (fn a, b)
+let mapSecond fn (a, b) = (a, fn b)

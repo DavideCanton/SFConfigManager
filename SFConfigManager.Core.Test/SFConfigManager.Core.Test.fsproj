@@ -16,6 +16,24 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Data\AddLastChild\Input\Test01.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\AddLastChild\Input\Test02.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\AddLastChild\Input\Test03.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\AddLastChild\Output\Test01.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\AddLastChild\Output\Test02.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\AddLastChild\Output\Test03.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Data\AddTagAfter\Input\Test03.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

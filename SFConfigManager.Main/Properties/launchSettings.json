@@ -2,7 +2,7 @@
   "profiles": {
     "SFConfigManager.Main": {
       "commandName": "Project",
-      "commandLineArgs": "-s C:\\Users\\Davide\\source\\repos\\ProveServiceFabric\\ProvaSF.sln get ProvaSFWebAPI --name MyParameter --section MyConfigSection"
+      "commandLineArgs": "-s C:\\Users\\Davide\\source\\repos\\ProveServiceFabric\\ProvaSF.sln set ProvaSFWebAPI --name MyParameter --section MyConfigSection --value ciao --environments Cloud Local.1Node"
     }
   }
 }

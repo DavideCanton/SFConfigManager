@@ -6,9 +6,10 @@ open SFConfigManager.Core.Common
 
 type ManifestParseResult =
     { Parameters: ParameterResultEntry list
+      ManifestPath: string
       RootElement: FabricTypes.ApplicationManifest }
 
-let private parseManifestData (root: FabricTypes.ApplicationManifest) =
+let private parseManifestData path (root: FabricTypes.ApplicationManifest) =
     { Parameters =
           root.Parameters
           |> Option.map (fun x -> x.Parameters |> Seq.ofArray)
@@ -17,15 +18,16 @@ let private parseManifestData (root: FabricTypes.ApplicationManifest) =
           |> Seq.map (Parameters.P2 >> mapParam)
           |> Seq.choose id
           |> Seq.toList
+      ManifestPath = path
       RootElement = root }
 
-let private tryParseManifestData (root: FabricTypes.Choice) =
+let private tryParseManifestData path (root: FabricTypes.Choice) =
     match root.ApplicationManifest with
-    | Some root -> Ok <| parseManifestData root
+    | Some root -> Ok <| parseManifestData path root
     | None -> Error InvalidFileException
 
 let parseManifest path =
     path
     |> File.ReadAllText
     |> FabricTypes.Parse
-    |> tryParseManifestData
+    |> tryParseManifestData path

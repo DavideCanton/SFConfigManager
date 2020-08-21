@@ -39,9 +39,11 @@ module ContextBuilder =
               ctx.Parameters |> Option.map ignore
               ctx.Manifest |> Option.map ignore ]
 
-        if List.exists Option.isNone vals then
-            Error IncompleteContextBuildRequestException
-        else
+        let existsNone = List.exists Option.isNone
+
+        match existsNone vals with
+        | true -> Error IncompleteContextBuildRequestException
+        | false ->
             Ok
                 { SfProj = ctx.SfProj.Value
                   Settings = ctx.Settings

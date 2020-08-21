@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <list id="target">
+    <item id="1" />
+    <item id="2" />
+  </list>
+  <list>
+    <item id="1" />
+    <item id="2" />
+  </list>
+</root>

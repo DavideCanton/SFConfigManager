@@ -11,6 +11,8 @@ let mainBody (arguments: ParseResults<SfConfigArgs>) =
     match arguments.GetSubCommand() with
     | Add r -> processCommand add r arguments
     | Get r -> processCommand get r arguments
+    | Set r -> processCommand set r arguments
+    | SetDefault r -> processCommand setDefault r arguments
     // ignore after
     | Sln _ -> Ok()
     | Version -> Ok()
@@ -18,20 +20,18 @@ let mainBody (arguments: ParseResults<SfConfigArgs>) =
 
 [<EntryPoint>]
 let main argv =
-    let fn =
-        Result.protect (fun () ->
-            let parser =
-                ArgumentParser.Create<SfConfigArgs>(programName = "sfconfig.exe", errorHandler = ProcessExiter())
+    let fn() =
+        let parser = ArgumentParser.Create<SfConfigArgs>(programName = "sfconfig.exe", errorHandler = ProcessExiter())
+        let result = parser.ParseCommandLine argv
+        match result.Contains Version with
+        | true ->
+            printfn "1.0.0"
+            Ok()
+        | false -> mainBody result
 
-            let result = parser.ParseCommandLine argv
+    let result = () |> (Result.protect fn) |> Result.flatten
 
-            if result.Contains Version then
-                printfn "1.0.0"
-                Ok()
-            else
-                mainBody result)
-
-    match Result.flatten (fn ()) with
+    match result with
     | Ok _ -> 0
     | Error e ->
         eprintfn "Error: %s" e.Message

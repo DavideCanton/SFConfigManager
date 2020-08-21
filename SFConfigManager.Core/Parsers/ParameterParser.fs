@@ -8,9 +8,10 @@ open SFConfigManager.Core
 type ParametersParseResult =
     { Params: Common.ParameterResultEntry list
       FileName: string
+      FilePath: string
       RootElement: FabricTypes.Application }
 
-let private extractParams fileName (root: FabricTypes.Application) =
+let private extractParams fileName path (root: FabricTypes.Application) =
     let p =
         root.Parameters
         |> Seq.map (Common.Parameters.P1 >> Common.mapParam)
@@ -20,12 +21,13 @@ let private extractParams fileName (root: FabricTypes.Application) =
     Ok
         { Params = p
           FileName = fileName
+          FilePath = path
           RootElement = root }
 
-let private getParameters fileName (x: FabricTypes.Choice) =
+let private getParameters fileName path (x: FabricTypes.Choice) =
     match x.Application with
     | None -> Error Common.InvalidFileException
-    | Some root -> extractParams fileName root
+    | Some root -> extractParams fileName path root
 
 
 let parseParameters (path: string) =
@@ -34,5 +36,5 @@ let parseParameters (path: string) =
         path
         |> File.ReadAllText
         |> FabricTypes.Parse
-        |> getParameters fileName
+        |> getParameters fileName path
     with e -> Error e

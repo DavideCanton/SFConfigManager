@@ -21,12 +21,27 @@ let parseParameters (parameters: SFProjParser.SFProjParseResult) =
     |> List.map ParameterParser.parseParameters
     |> List.fold reducer (Ok [])
 
+let private joinParamName parts =
+    parts
+    |> String.concat "_"
+    |> String.trim (List.singleton '_')
+
+let normalizeParamNameWithService service section name =
+    let addSection (section: string option) (a, b) =
+        match section with
+        | Some x -> [ a; x; b ]
+        | None -> [ a; b ]
+
+    (service, name)
+    |> addSection section
+    |> joinParamName
+
+let normalizeParamName section name = [ section; name ] |> joinParamName
+
 let getParamValue name section service (parameters: Common.ParameterResultEntry list) =
     let paramMatcher (p: Common.ParameterResultEntry) =
         p.ServiceName = service
-        && p.ParamName =
-            (String.concat "_" [ section; name ]
-             |> String.trim (List.singleton '_'))
+        && p.ParamName = normalizeParamName (Option.defaultValue "" section) name
 
     parameters |> List.tryFind paramMatcher
 
@@ -51,7 +66,9 @@ let parseSettings (sfProjPath: string) services =
         |> Path.GetDirectoryName
 
     services
-    |> List.map (normalizeAndAppendPath >> SettingsParser.parseSettings)
+    |> List.map
+        (normalizeAndAppendPath
+         >> SettingsParser.parseSettings)
     |> List.fold reducer (Ok [])
 
 let buildContext path service =
