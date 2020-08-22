@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ApplicationManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ApplicationTypeName="ProvaSFType" ApplicationTypeVersion="1.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
+  <Parameters>
+    <!-- *** BACKEND *** -->
+    <Parameter Name="Backend_InstanceCount" DefaultValue="-1" />
+    <!-- *** WEB *** -->
+    <Parameter Name="ProvaSFWebAPI_ASPNETCORE_ENVIRONMENT" DefaultValue="" />
+    <Parameter Name="ProvaSFWebAPI_InstanceCount" DefaultValue="-1" />
+    <Parameter Name="ProvaSFWebAPI_MyConfigSection_MyParameter" DefaultValue="Default" />
+    <!-- *** FE *** -->
+    <Parameter Name="ProvaSFFrontend_ASPNETCORE_ENVIRONMENT" DefaultValue="" />
+    <Parameter Name="ProvaSFFrontend_InstanceCount" DefaultValue="-1" />
+  </Parameters>
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="BackendPkg" ServiceManifestVersion="1.0.0" />
+    <ConfigOverrides />
+  </ServiceManifestImport>
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="ProvaSFWebAPIPkg" ServiceManifestVersion="1.0.0" />
+    <ConfigOverrides />
+    <EnvironmentOverrides CodePackageRef="code">
+      <EnvironmentVariable Name="ASPNETCORE_ENVIRONMENT" Value="[ProvaSFWebAPI_ASPNETCORE_ENVIRONMENT]" />
+    </EnvironmentOverrides>
+  </ServiceManifestImport>
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="ProvaSFFrontendPkg" ServiceManifestVersion="1.0.0" />
+    <ConfigOverrides />
+    <EnvironmentOverrides CodePackageRef="code">
+      <EnvironmentVariable Name="ASPNETCORE_ENVIRONMENT" Value="[ProvaSFFrontend_ASPNETCORE_ENVIRONMENT]" />
+    </EnvironmentOverrides>
+  </ServiceManifestImport>
+  <DefaultServices>
+    <Service Name="Backend" ServicePackageActivationMode="ExclusiveProcess">
+      <StatelessService ServiceTypeName="BackendType" InstanceCount="[Backend_InstanceCount]">
+        <SingletonPartition />
+      </StatelessService>
+    </Service>
+    <Service Name="ProvaSFWebAPI" ServicePackageActivationMode="ExclusiveProcess">
+      <StatelessService ServiceTypeName="ProvaSFWebAPIType" InstanceCount="[ProvaSFWebAPI_InstanceCount]">
+        <SingletonPartition />
+      </StatelessService>
+    </Service>
+    <Service Name="ProvaSFFrontend" ServicePackageActivationMode="ExclusiveProcess">
+      <StatelessService ServiceTypeName="ProvaSFFrontendType" InstanceCount="[ProvaSFFrontend_InstanceCount]">
+        <SingletonPartition />
+      </StatelessService>
+    </Service>
+  </DefaultServices>
+</ApplicationManifest>
+

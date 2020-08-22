@@ -7,6 +7,8 @@ open SFConfigManager.Core.Common
 
 type SettingsParseResult =
     { Service: string
+      ServiceFilePath: string
+      SettingsFilePath: string
       Sections: Map<string, (string * string) list>
       RootServiceElement: FabricTypes.ServiceManifest
       RootSettingsElement: FabricTypes.Settings2 }
@@ -21,21 +23,24 @@ let private extractEntry (section: FabricTypes.Section2) =
 
     (name, p)
 
-let private extractSettings (settings: FabricTypes.Settings2) (manifest: FabricTypes.ServiceManifest) =
+let private extractSettings (settings: FabricTypes.Settings2) settingsPath (manifest: FabricTypes.ServiceManifest) serviceManifestPath =
     let sections =
         settings.Sections
         |> Seq.map extractEntry
         |> Map.ofSeq
 
     { Sections = sections
+      ServiceFilePath = serviceManifestPath
       Service = manifest.ServiceTypes.StatelessServiceTypes.[0].ServiceTypeName
+      SettingsFilePath = settingsPath
       RootServiceElement = manifest
       RootSettingsElement = settings }
 
-let private buildResult (settings: FabricTypes.Choice) (serviceManifest: FabricTypes.Choice) =
+let private buildResult (settings: FabricTypes.Choice) settingsPath (serviceManifest: FabricTypes.Choice) serviceManifestPath =
     match (settings.Settings, serviceManifest.ServiceManifest) with
-    | (Some settingsRoot, Some manifestRoot) -> Ok <| extractSettings settingsRoot manifestRoot
-    | _ -> Error InvalidFileException
+    | (Some settingsRoot, Some manifestRoot) -> Ok <| extractSettings settingsRoot settingsPath manifestRoot serviceManifestPath
+    | (Some _, None) -> Error <| InvalidFileException serviceManifestPath
+    | _ -> Error <| InvalidFileException settingsPath
 
 
 let parseSettings path =
@@ -47,18 +52,18 @@ let parseSettings path =
 
     let appendPath = flip <| curry Path.Combine
     try
+        let settingsPath = appendPath settingsFile path
         let settings =
-            path
-            |> appendPath settingsFile
+            settingsPath
             |> File.ReadAllText
             |> FabricTypes.Parse
 
+        let serviceManifestPath = appendPath serviceManifestFile path
         let serviceManifest =
-            path
-            |> appendPath serviceManifestFile
+            serviceManifestPath
             |> File.ReadAllText
             |> FabricTypes.Parse
 
 
-        buildResult settings serviceManifest
+        buildResult settings settingsPath serviceManifest serviceManifestPath
     with e -> Error e

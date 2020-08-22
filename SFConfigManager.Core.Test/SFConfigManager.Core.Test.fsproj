@@ -16,6 +16,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="TestCommons.fs" />
+    <Content Include="Data\ManifestSamples\InvalidSample1.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\ManifestSamples\Sample1.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Data\AddLastChild\Input\Test01.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -52,6 +59,7 @@
     <Content Include="Data\AddTagAfter\Input\Test01.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Compile Include="ManifestParserTests.fs" />
     <Compile Include="XMLEditorTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

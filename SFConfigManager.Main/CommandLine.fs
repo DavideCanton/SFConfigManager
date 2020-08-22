@@ -83,18 +83,13 @@ let set (g: ParseResults<SetArgs>) (root: ParseResults<SfConfigArgs>) =
                       Name = "Value"
                       Value = value } ]
 
-            processActionsAndSave actions env.RootElement.XElement env.FilePath
-
-        let reducer l r =
-            match r with
-            | Ok _ -> l
-            | Error e -> e :: l
+            processActionsAndSave actions env.RootElement.XElement env.FilePath        
 
         context.Parameters
         |> filterEnvironments
         |> List.map processEnvironment
-        |> List.fold reducer []
-        |> fun l -> if List.isEmpty l then Ok() else Error(SetArgumentsFailedException l)
+        |> Result.partition
+        |> fun (_, errors) -> if List.isEmpty errors then Ok() else Error(SetArgumentsFailedException errors)
 
     buildContextAndExecute path service innerBody
 

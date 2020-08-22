@@ -4,9 +4,8 @@ open FSharpPlus
 open SFConfigManager.Data
 open System.Xml.Linq
 
-exception InvalidFileException
-
-let contains (query: string) (value: string) = value.Contains query
+exception InvalidFileException of name:string
+exception FileNotFoundException of name:string
 
 type ParameterResultEntry =
     { ServiceName: string

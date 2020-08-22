@@ -26,7 +26,7 @@ let private extractParams fileName path (root: FabricTypes.Application) =
 
 let private getParameters fileName path (x: FabricTypes.Choice) =
     match x.Application with
-    | None -> Error Common.InvalidFileException
+    | None -> Error <| Common.InvalidFileException path
     | Some root -> extractParams fileName path root
 
 

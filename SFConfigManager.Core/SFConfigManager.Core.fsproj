@@ -6,6 +6,7 @@
     <ProjectReference Include="..\SFConfigManager.Data\SFConfigManager.Data.fsproj">
       <Name>SFConfigManager.Data.fsproj</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SFConfigManager.Extensions\SFConfigManager.Extensions.fsproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common.fs" />

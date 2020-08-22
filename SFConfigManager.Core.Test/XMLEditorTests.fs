@@ -1,4 +1,4 @@
-module SFConfigManager.Core.Test
+module SFConfigManager.Core.Test.XMLEditorTests
 
 open NUnit.Framework
 open FsUnit

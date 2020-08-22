@@ -15,11 +15,13 @@ let getSfProj path =
     | _ -> Error ProjectNotFoundException
 
 let parseParameters (parameters: SFProjParser.SFProjParseResult) =
-    let reducer = flip <| Result.map2 List.cons
-
     parameters.Parameters
     |> List.map ParameterParser.parseParameters
-    |> List.fold reducer (Ok [])
+    |> Result.partition
+    |> fun (oks, errors) ->
+        match errors with
+        | [] -> Ok oks
+        | e::_ -> Error e
 
 let private joinParamName parts =
     parts
@@ -58,7 +60,6 @@ let throwIfError (r: Result<'a, exn>) =
     | Error e -> raise e
 
 let parseSettings (sfProjPath: string) services =
-    let reducer = flip <| Result.map2 List.cons
 
     let normalizeAndAppendPath p =
         Path.Combine(Path.GetDirectoryName sfProjPath, p)
@@ -69,7 +70,11 @@ let parseSettings (sfProjPath: string) services =
     |> List.map
         (normalizeAndAppendPath
          >> SettingsParser.parseSettings)
-    |> List.fold reducer (Ok [])
+    |> Result.partition
+    |> fun (oks, errors) ->
+        match errors with
+        | [] -> Ok oks
+        | e::_ -> Error e
 
 let buildContext path service =
     ContextBuilder.newContext ()
