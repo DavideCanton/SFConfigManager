@@ -2,8 +2,7 @@ module SFConfigManager.Core.Parsers.SolutionParser
 
 open Microsoft.Build.Construction
 open FSharpPlus
-
-type SolutionParseResult = { SfProjList: string list }
+open SFConfigManager.Data.Parsers.ParserTypes
 
 let private buildResult sfProjs = { SfProjList = sfProjs }
 

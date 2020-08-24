@@ -4,6 +4,7 @@ open System.Xml.Linq
 open System.Xml
 open System.Xml.XPath
 open SFConfigManager.Core.Common
+open SFConfigManager.Core.Editors.Actions
 open FSharpPlus
 
 exception ErrorInActionException of message: string
@@ -52,18 +53,6 @@ let setAttributeByXPath (path: string) (name: string) (value: string) (root: XEl
 let saveXML (path: string) (element: XElement) =
     ()
     |> Result.protect (fun () -> using (XmlWriter.Create(path)) (fun w -> element.Save(w)))
-
-type SetAttributeArgs =
-    { Path: string
-      Name: string
-      Value: string }
-
-type AddActionArgs = { Path: string; Element: XElement }
-
-type XMLAction =
-    | SetAttribute of SetAttributeArgs
-    | AddSibling of AddActionArgs
-    | AddLastChild of AddActionArgs
 
 let private processAction (root: XElement) action =
     match action with

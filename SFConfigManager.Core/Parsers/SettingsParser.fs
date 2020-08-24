@@ -3,15 +3,8 @@ module SFConfigManager.Core.Parsers.SettingsParser
 open System.IO
 open FSharpPlus
 open SFConfigManager.Data
+open SFConfigManager.Data.Parsers.ParserTypes
 open SFConfigManager.Core.Common
-
-type SettingsParseResult =
-    { Service: string
-      ServiceFilePath: string
-      SettingsFilePath: string
-      Sections: Map<string, (string * string) list>
-      RootServiceElement: FabricTypes.ServiceManifest
-      RootSettingsElement: FabricTypes.Settings2 }
 
 let private extractEntry (section: FabricTypes.Section2) =
     let name = section.Name

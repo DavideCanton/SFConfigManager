@@ -7,6 +7,7 @@ open System.IO
 open SFConfigManager.Core.Common
 open SFConfigManager.Core.Parsers
 open SFConfigManager.Extensions.ResultExtensions
+open SFConfigManager.Data.Parsers.ParserTypes
 
 let testFolder =
     Path.Combine(TestContext.CurrentContext.TestDirectory, "Data", "ManifestSamples")

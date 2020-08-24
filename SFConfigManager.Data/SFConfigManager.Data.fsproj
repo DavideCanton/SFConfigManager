@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <Compile Include="Types.fs" />
+    <Compile Include="Parsers\ParserTypes.fs" />
     <EmbeddedResource Include="Schema/ServiceFabricServiceModel.xsd" />
   </ItemGroup>
 

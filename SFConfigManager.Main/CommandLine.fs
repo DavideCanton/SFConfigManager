@@ -3,17 +3,12 @@
 open Argu
 open SFConfigManager.Main.Arguments
 open SFConfigManager.Main.Utils
-open SFConfigManager.Core.Editors.XMLEditor
 open SFConfigManager.Core.Context
+open SFConfigManager.Core.Common
+open SFConfigManager.Core.Editors
 open FSharpPlus
-open SFConfigManager.Core.Parsers.ParameterParser
 
 let processCommand command arguments = command arguments
-
-let private buildContextAndExecute path service (fn: Context -> Result<unit, exn>) =
-    buildContext path service
-    |> Result.bind fn
-    |> Result.map ignore
 
 let get (g: ParseResults<GetArgs>) (root: ParseResults<SfConfigArgs>) =
     let name =
@@ -28,7 +23,7 @@ let get (g: ParseResults<GetArgs>) (root: ParseResults<SfConfigArgs>) =
 
     let paramPrinter fileName parameters =
         let value =
-            getParamValue name section service parameters
+            getParamValueFromList name section service parameters
 
         match value with
         | Some v -> printfn "%s: %s" fileName v.ParamValue
@@ -63,35 +58,8 @@ let set (g: ParseResults<SetArgs>) (root: ParseResults<SfConfigArgs>) =
 
     let path = getSolutionPath root
 
-    let filterEnvironments (envs: ParametersParseResult list) =
-        envs
-        |> List.filter (fun e ->
-            environments.IsEmpty
-            || environments.Contains e.FileName)
-
-    let innerBody context =
-        let paramName =
-            normalizeParamNameWithService service section name
-
-        let xpath =
-            sprintf "/empty:Application/empty:Parameters/empty:Parameter[@Name=\"%s\"]" paramName
-
-        let processEnvironment env =
-            let actions =
-                [ SetAttribute
-                    { Path = xpath
-                      Name = "Value"
-                      Value = value } ]
-
-            processActionsAndSave actions env.RootElement.XElement env.FilePath        
-
-        context.Parameters
-        |> filterEnvironments
-        |> List.map processEnvironment
-        |> Result.partition
-        |> fun (_, errors) -> if List.isEmpty errors then Ok() else Error(SetArgumentsFailedException errors)
-
-    buildContextAndExecute path service innerBody
+    buildContextAndExecute path service
+    <| fun c -> SetParameterValueEditor.setParamValueEditor c service section name value environments
 
 let setDefault (g: ParseResults<SetDefaultArgs>) (root: ParseResults<SfConfigArgs>) =
     let name =
@@ -105,23 +73,6 @@ let setDefault (g: ParseResults<SetDefaultArgs>) (root: ParseResults<SfConfigArg
     let service =
         g.GetResult(SetDefaultArgs.Service, defaultValue = "")
 
-    let path = getSolutionPath root
+    let path = getSolutionPath root    
 
-    let innerBody context =
-        let manifest = context.Manifest
-
-        let paramName =
-            normalizeParamNameWithService service section name
-
-        let xpath =
-            sprintf "/empty:ApplicationManifest/empty:Parameters/empty:Parameter[@Name=\"%s\"]" paramName
-
-        let actions =
-            [ SetAttribute
-                { Path = xpath
-                  Name = "DefaultValue"
-                  Value = value } ]
-
-        processActionsAndSave actions manifest.RootElement.XElement manifest.ManifestPath
-
-    buildContextAndExecute path service innerBody
+    buildContextAndExecute path service <| fun c -> SetParameterDefaultValueEditor.setParameterDefaultValueEditor c service section name value

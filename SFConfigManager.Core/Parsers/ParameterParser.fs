@@ -1,15 +1,10 @@
 module SFConfigManager.Core.Parsers.ParameterParser
 
 open SFConfigManager.Data
+open SFConfigManager.Data.Parsers.ParserTypes
 open FSharpPlus
 open System.IO
 open SFConfigManager.Core
-
-type ParametersParseResult =
-    { Params: Common.ParameterResultEntry list
-      FileName: string
-      FilePath: string
-      RootElement: FabricTypes.Application }
 
 let private extractParams fileName path (root: FabricTypes.Application) =
     let p =

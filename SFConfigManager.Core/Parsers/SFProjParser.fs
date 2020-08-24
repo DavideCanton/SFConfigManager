@@ -4,12 +4,7 @@ open System.IO
 open Microsoft.Build.Construction
 open FSharpPlus
 open SFConfigManager.Extensions.StringExtensions
-
-type SFProjParseResult =
-    { FilePath: string
-      Parameters: string list
-      ManifestPath: string
-      Services: string list }
+open SFConfigManager.Data.Parsers.ParserTypes
 
 let private getItemInclude (x: ProjectItemElement) = x.Include
 

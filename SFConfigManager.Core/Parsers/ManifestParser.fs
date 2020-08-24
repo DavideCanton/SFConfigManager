@@ -2,13 +2,9 @@
 
 open System.IO
 open SFConfigManager.Data
+open SFConfigManager.Data.Parsers.ParserTypes
 open SFConfigManager.Core.Common
 open FSharpPlus
-
-type ManifestParseResult =
-    { Parameters: ParameterResultEntry list
-      ManifestPath: string
-      RootElement: FabricTypes.ApplicationManifest }
 
 let private parseManifestData path (root: FabricTypes.ApplicationManifest) =
     { Parameters =

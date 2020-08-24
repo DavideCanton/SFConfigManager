@@ -1,22 +1,22 @@
 ﻿module SFConfigManager.Core.Context
 
-open SFConfigManager.Core.Parsers
 open FSharpPlus
+open SFConfigManager.Data.Parsers.ParserTypes
 
 type Context =
-    { SfProj: SFProjParser.SFProjParseResult
-      Settings: SettingsParser.SettingsParseResult option
-      Parameters: ParameterParser.ParametersParseResult list
-      Manifest: ManifestParser.ManifestParseResult }
+    { SfProj: SFProjParseResult
+      Settings: SettingsParseResult option
+      Parameters: ParametersParseResult list
+      Manifest: ManifestParseResult }
 
 exception IncompleteContextBuildRequestException
 
 module ContextBuilder =
     type ContextBuilderImpl =
-        { SfProj: SFProjParser.SFProjParseResult option
-          Settings: SettingsParser.SettingsParseResult option
-          Parameters: ParameterParser.ParametersParseResult list option
-          Manifest: ManifestParser.ManifestParseResult option }
+        { SfProj: SFProjParseResult option
+          Settings: SettingsParseResult option
+          Parameters: ParametersParseResult list option
+          Manifest: ManifestParseResult option }
 
     let newContext () =
         { SfProj = None
