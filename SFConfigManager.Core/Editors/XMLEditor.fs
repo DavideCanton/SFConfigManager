@@ -4,6 +4,7 @@ open System.Xml.Linq
 open System.Xml
 open System.Xml.XPath
 open SFConfigManager.Core.Common
+open SFConfigManager.Extensions.ResultComputationExpression
 open SFConfigManager.Core.Editors.Actions
 open FSharpPlus
 
@@ -57,16 +58,20 @@ let saveXML (path: string) (element: XElement) =
 let private processAction (root: XElement) action =
     match action with
     | SetAttribute { Path = path; Name = name; Value = value } -> setAttributeByXPath path name value root
-    | AddSibling { Path = path; Element = element } -> 
+    | AddSibling { Path = path; Element = element } ->
         match findElementByXPath path root with
         | Some elFound -> addTagAfter elFound element |> Ok
         | None -> ErrorInActionException "Tag not found" |> Error
-    | AddLastChild { Path = path; Element = element } -> 
+    | AddLastChild { Path = path; Element = element } ->
         match findElementByXPath path root with
         | Some elFound -> addLastChild elFound element |> Ok
         | None -> ErrorInActionException "Tag not found" |> Error
 
 let processActionsAndSave actions (root: XElement) path =
-    let folder r a = r |> Result.bind (fun _ -> processAction root a)
-    List.fold folder (Ok ()) actions
-    |> Result.bind (fun _ -> saveXML path root)
+    resultExpr {
+        let folder _ a =
+            resultExpr { return! processAction root a }
+
+        do! List.fold folder (Ok()) actions
+        return! saveXML path root
+    }

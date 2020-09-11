@@ -8,6 +8,8 @@
     <Compile Include="StringExtensions.fs" />
     <Compile Include="ResultExtensions.fs" />
     <Compile Include="OptionExtensions.fs" />
+    <Compile Include="MaybeComputationExpression.fs" />
+    <Compile Include="ResultComputationExpression.fs" />
   </ItemGroup>
 
 </Project>

@@ -6,6 +6,7 @@ open SFConfigManager.Main.Utils
 open SFConfigManager.Core.Context
 open SFConfigManager.Core.Common
 open SFConfigManager.Core.Editors
+open SFConfigManager.Extensions.ResultComputationExpression
 open FSharpPlus
 
 let processCommand command arguments = command arguments
@@ -30,11 +31,13 @@ let get (g: ParseResults<GetArgs>) (root: ParseResults<SfConfigArgs>) =
         | None -> printfn "%s: not found" fileName
 
     let innerBody context =
-        printfn "Value of [Service=%s; Section=%s; Name=%s]" service (Option.defaultValue "" section) name
-        context.Parameters
-        |> List.iter (fun x -> paramPrinter x.FileName x.Params)
-        paramPrinter "Default Value" context.Manifest.Parameters
-        Ok()
+        resultExpr {
+            let section' = Option.defaultValue "" section
+            printfn "Value of [Service=%s; Section=%s; Name=%s]" service section' name
+            context.Parameters
+            |> List.iter (fun x -> paramPrinter x.FileName x.Params)
+            paramPrinter "Default Value" context.Manifest.Parameters
+        }
 
     buildContextAndExecute path service innerBody
 

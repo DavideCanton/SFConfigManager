@@ -1,12 +1,13 @@
 module SFConfigManager.Core.Common
 
 open FSharpPlus
+open SFConfigManager.Extensions.MaybeComputationExpression
 open SFConfigManager.Data
 open SFConfigManager.Data.Parsers.ParserTypes
 open System.Xml.Linq
 
-exception InvalidFileException of name:string
-exception FileNotFoundException of name:string
+exception InvalidFileException of name: string
+exception FileNotFoundException of name: string
 
 let private splitTwo (sep: string) (value: string) =
     let list = String.split [ sep ] value |> Seq.toList
@@ -29,14 +30,15 @@ let private getParamName (Param (name, _)) = name
 let private getParamValue (Param (_, value)) = value
 
 let mapParam (param: Parameters): ParameterResultEntry option =
-    let value = getParamValue param
+    maybe {
+        let value = getParamValue param
+        let name = getParamName param
+        let! (sn, pn) = extract name
 
-    getParamName param
-    |> extract
-    |> Option.map (fun (sn, pn) ->
-        { ServiceName = sn
-          ParamName = pn
-          ParamValue = value })
+        return { ServiceName = sn
+                 ParamName = pn
+                 ParamValue = value }
+    }
 
 let inline (!?) name = XName.Get name
 
