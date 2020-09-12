@@ -16,9 +16,9 @@ let addLastChild (element: XElement) (newTag: XElement) = element.Add(newTag)
 
 let getNamespaces (root: XElement) =
     let getName (vs: XAttribute) =
-        match vs with
-        | a when a.Name.Namespace = XNamespace.None -> ""
-        | a -> a.Name.LocalName
+        match vs.Name with
+        | a when a.Namespace = XNamespace.None -> ""
+        | a -> a.LocalName
 
     let toManager (namespaces: seq<string * XNamespace>) =
         let manager = XmlNamespaceManager(NameTable())

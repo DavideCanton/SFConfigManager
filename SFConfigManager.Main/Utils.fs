@@ -2,12 +2,12 @@
 
 open SFConfigManager.Core.Parsers
 open FSharpPlus
-open SFConfigManager.Core
 open System.IO
 open SFConfigManager.Core.Context
 open Argu
 open SFConfigManager.Main.Arguments
 open SFConfigManager.Data.Parsers.ParserTypes
+open SFConfigManager.Extensions.ResultComputationExpression
 
 let getSfProj path =
     let projs = SolutionParser.parseSolution path
@@ -54,22 +54,35 @@ let parseSettings (sfProjPath: string) services =
         | e :: _ -> Error e
 
 let private buildContext path service =
-    ContextBuilder.newContext ()
-    |> Ok
-    |> Result.bind (fun ctx ->
-        getSfProj path
-        |> Result.map (ContextBuilder.withSfProj ctx))
-    |> Result.bind (fun ctx ->
-        parseParameters ctx.SfProj.Value
-        |> Result.map (ContextBuilder.withParameters ctx))
-    |> Result.bind (fun ctx ->
-        ManifestParser.parseManifest ctx.SfProj.Value.ManifestPath
-        |> Result.map (ContextBuilder.withManifest ctx))
-    |> Result.bind (fun ctx ->
-        parseSettings ctx.SfProj.Value.FilePath ctx.SfProj.Value.Services
-        |> Result.map (List.tryFind (fun x -> x.Service = service))
-        |> Result.map (ContextBuilder.withSettings ctx))
-    |> Result.bind ContextBuilder.build
+    resultExpr {
+        let builder = ContextBuilder.newContext ()
+
+        let! sfProjPath = getSfProj path
+
+        let builder =
+            ContextBuilder.withSfProj builder sfProjPath
+
+        let! parameters = parseParameters builder.SfProj.Value
+
+        let builder =
+            ContextBuilder.withParameters builder parameters
+
+        let! manifest = ManifestParser.parseManifest builder.SfProj.Value.ManifestPath
+
+        let builder =
+            ContextBuilder.withManifest builder manifest
+
+        let! settings = parseSettings builder.SfProj.Value.FilePath builder.SfProj.Value.Services
+
+        let serviceSettings =
+            List.tryFind (fun x -> x.Service = service) settings
+
+        let builder =
+            ContextBuilder.withSettings builder serviceSettings
+
+        return! (ContextBuilder.build builder)
+    }
+
 
 let getSolutionPath (arguments: ParseResults<SfConfigArgs>) =
     arguments.TryGetResult Sln
@@ -77,6 +90,7 @@ let getSolutionPath (arguments: ParseResults<SfConfigArgs>) =
 
 
 let buildContextAndExecute path service (fn: Context -> Result<unit, exn>) =
-    buildContext path service
-    |> Result.bind fn
-    |> Result.map ignore
+    resultExpr {
+        let! ctx = buildContext path service
+        do! fn ctx
+    }

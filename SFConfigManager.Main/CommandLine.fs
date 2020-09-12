@@ -61,8 +61,10 @@ let set (g: ParseResults<SetArgs>) (root: ParseResults<SfConfigArgs>) =
 
     let path = getSolutionPath root
 
-    buildContextAndExecute path service
-    <| fun c -> SetParameterValueEditor.setParamValueEditor c service section name value environments
+    let editor c =
+        SetParameterValueEditor.setParamValueEditor c service section name value environments
+
+    buildContextAndExecute path service editor
 
 let setDefault (g: ParseResults<SetDefaultArgs>) (root: ParseResults<SfConfigArgs>) =
     let name =
@@ -76,6 +78,9 @@ let setDefault (g: ParseResults<SetDefaultArgs>) (root: ParseResults<SfConfigArg
     let service =
         g.GetResult(SetDefaultArgs.Service, defaultValue = "")
 
-    let path = getSolutionPath root    
+    let path = getSolutionPath root
 
-    buildContextAndExecute path service <| fun c -> SetParameterDefaultValueEditor.setParameterDefaultValueEditor c service section name value
+    let editor c =
+        SetParameterDefaultValueEditor.setParameterDefaultValueEditor c service section name value
+
+    buildContextAndExecute path service editor

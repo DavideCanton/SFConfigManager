@@ -5,12 +5,15 @@ open SFConfigManager.Data
 open SFConfigManager.Data.Parsers.ParserTypes
 open SFConfigManager.Core.Common
 open FSharpPlus
+open SFConfigManager.Extensions.MaybeComputationExpression
 
 let private parseManifestData path (root: FabricTypes.ApplicationManifest) =
     { Parameters =
-          root.Parameters
-          |> Option.map (fun x -> x.Parameters |> Seq.ofArray)
-          |> Option.orElse (Some Seq.empty)
+          maybe {
+              let! parameters = root.Parameters
+              return parameters.Parameters |> Seq.ofArray
+          }
+          |> Option.orElseWith (fun () -> Some Seq.empty)
           |> Option.get
           |> Seq.map (Parameters.P2 >> mapParam)
           |> Seq.choose id
@@ -24,17 +27,18 @@ let private tryParseManifestData path (root: FabricTypes.Choice) =
     | None -> Error <| InvalidFileException path
 
 let parseManifest path =
-    let resFn = Result.protect (fun () ->
-        path
-        |> File.ReadAllText
-        |> FabricTypes.Parse
-        |> tryParseManifestData path)
+    let resFn =
+        Result.protect (fun () ->
+            path
+            |> File.ReadAllText
+            |> FabricTypes.Parse
+            |> tryParseManifestData path)
 
     let mapError (ex: exn) =
         match ex with
         | :? System.IO.FileNotFoundException as e -> FileNotFoundException e.FileName
         | e -> e
 
-    resFn () 
+    resFn ()
     |> Result.flatten
     |> Result.mapError mapError

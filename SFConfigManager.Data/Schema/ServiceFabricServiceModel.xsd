@@ -1032,7 +1032,6 @@
             <xs:documentation>The value of the driver option. </xs:documentation>
           </xs:annotation>
         </xs:attribute>
-        <!-- TODO [dragosav] this needs to be deprecated; unclear if we can outright remove it, or give advance notice and remove it in an upcoming release. -->
         <xs:attribute name="IsEncrypted" type="xs:string" use="optional" default="false" />
         <xs:attribute name="Type" type="xs:string" use="optional" default="PlainText" >
           <xs:annotation>
