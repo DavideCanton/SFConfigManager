@@ -22,22 +22,23 @@ let getNamespaces (root: XElement) =
 
     let toManager (namespaces: seq<string * XNamespace>) =
         let manager = XmlNamespaceManager(NameTable())
-        namespaces
-        |> Seq.iter (fun (k, v) -> manager.AddNamespace(k, v.NamespaceName))
+        let adder (k, v: XNamespace) = manager.AddNamespace(k, v.NamespaceName)
+
+        Seq.iter adder namespaces
 
         manager.AddNamespace("empty", manager.DefaultNamespace)
         manager
 
+    let getAttrNamespace (vs: XAttribute seq) =
+        vs
+        |> Seq.head
+        |> (fun a -> a.Value)
+        |> XNamespace.Get
+
     root.Attributes()
     |> Seq.filter (fun a -> a.IsNamespaceDeclaration)
     |> Seq.groupBy getName
-    |> Seq.map
-        (mapSecond
-         <| fun vs ->
-             vs
-             |> Seq.head
-             |> (fun a -> a.Value)
-             |> XNamespace.Get)
+    |> Seq.map (mapSecond getAttrNamespace)
     |> toManager
 
 let findElementByXPath (xpath: string) (root: XElement) =
@@ -46,14 +47,17 @@ let findElementByXPath (xpath: string) (root: XElement) =
     Option.ofObj element
 
 let setAttributeByXPath (path: string) (name: string) (value: string) (root: XElement) =
-    ()
-    |> Result.protect (fun () ->
+    let body () =
         let element = findElementByXPath path root
-        element.Value.SetAttributeValue(!?name, value))
+        element.Value.SetAttributeValue(!?name, value)
+
+    protectAndRun body
 
 let saveXML (path: string) (element: XElement) =
-    ()
-    |> Result.protect (fun () -> using (XmlWriter.Create(path)) (fun w -> element.Save(w)))
+    let body () =
+        using (XmlWriter.Create(path)) (fun w -> element.Save(w))
+
+    protectAndRun body
 
 let private processAction (root: XElement) action =
     match action with
@@ -69,9 +73,12 @@ let private processAction (root: XElement) action =
 
 let processActionsAndSave actions (root: XElement) path =
     resultExpr {
-        let folder _ a =
-            resultExpr { return! processAction root a }
+        let folder acc a =
+            resultExpr {
+                return! acc
+                return! processAction root a
+            }
 
-        do! List.fold folder (Ok()) actions
+        do! List.fold folder (resultExpr.Zero()) actions
         return! saveXML path root
     }

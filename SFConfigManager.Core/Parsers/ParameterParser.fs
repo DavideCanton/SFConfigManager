@@ -5,6 +5,7 @@ open SFConfigManager.Data.Parsers.ParserTypes
 open FSharpPlus
 open System.IO
 open SFConfigManager.Core
+open SFConfigManager.Core.Common
 
 let private extractParams fileName path (root: FabricTypes.Application) =
     let p =
@@ -26,10 +27,12 @@ let private getParameters fileName path (x: FabricTypes.Choice) =
 
 
 let parseParameters (path: string) =
-    try
+    let body () =
         let fileName = Path.GetFileNameWithoutExtension path
+
         path
         |> File.ReadAllText
         |> FabricTypes.Parse
         |> getParameters fileName path
-    with e -> Error e
+
+    protectAndRun body

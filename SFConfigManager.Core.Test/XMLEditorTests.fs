@@ -23,9 +23,8 @@ let buildTestSource name =
         (Path.GetFileNameWithoutExtension n, Path.Combine(inputFolder, n), Path.Combine(outputFolder, n))
 
     let makeTestCase (fileName, inputPath, outputPath) =
-        TestCaseData(inputPath, outputPath)
-            .SetName(name + " test [" + fileName + "]")
-            .SetCategory("XML Manipulation tests")        
+        TestCaseData(inputPath, outputPath).SetName(name + " test [" + fileName + "]")
+            .SetCategory("XML Manipulation tests")
 
     Directory.GetFiles(inputFolder, "*.xml")
     |> List.ofArray
@@ -36,11 +35,13 @@ let testBody inputPath outputPath callback =
     let xml = XDocument.Load(stream)
 
     let target =
-        xml.Descendants()
-        |> Seq.tryFind (fun (n: XElement) ->
-            ()
-            |> Result.protect (fun () -> n.Attribute(!? "id").Value = "target")
-            |> Result.either id (konst false))
+        let finder (n: XElement) =
+            let body () = n.Attribute(!? "id").Value = "target"
+
+            protectAndRun body
+            |> Result.either id (konst false)
+
+        xml.Descendants() |> Seq.tryFind finder
 
     target.IsSome |> should equal true
 

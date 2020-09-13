@@ -5,7 +5,9 @@ open SFConfigManager.Main.Arguments
 open FSharpPlus
 open SFConfigManager.Extensions.ResultExtensions
 open SFConfigManager.Main.CommandLine
+open SFConfigManager.Core.Common
 
+let version = "1.0.0"
 
 let mainBody (arguments: ParseResults<SfConfigArgs>) =
     match arguments.GetSubCommand() with
@@ -20,16 +22,19 @@ let mainBody (arguments: ParseResults<SfConfigArgs>) =
 
 [<EntryPoint>]
 let main argv =
-    let fn() =
-        let parser = ArgumentParser.Create<SfConfigArgs>(programName = "sfconfig.exe", errorHandler = ProcessExiter())
-        let result = parser.ParseCommandLine argv
-        match result.Contains Version with
-        | true ->
-            printfn "1.0.0"
-            Ok()
-        | false -> mainBody result
+    let fn () =
+        let parser =
+            ArgumentParser.Create<SfConfigArgs>(programName = "sfconfig.exe", errorHandler = ProcessExiter())
 
-    let result = () |> (Result.protect fn) |> Result.flatten
+        let result = parser.ParseCommandLine argv
+
+        if (result.Contains Version) then
+            printfn "%s" version
+            Ok()
+        else
+            mainBody result
+
+    let result = protectAndRun fn |> Result.flatten
 
     match result with
     | Ok _ -> 0

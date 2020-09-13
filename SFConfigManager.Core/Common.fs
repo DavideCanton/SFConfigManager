@@ -11,6 +11,7 @@ exception FileNotFoundException of name: string
 
 let private splitTwo (sep: string) (value: string) =
     let list = String.split [ sep ] value |> Seq.toList
+
     match list with
     | [] -> None
     | (sn :: pn) -> Some(sn, String.concat "_" pn)
@@ -35,9 +36,10 @@ let mapParam (param: Parameters): ParameterResultEntry option =
         let name = getParamName param
         let! (sn, pn) = extract name
 
-        return { ServiceName = sn
-                 ParamName = pn
-                 ParamValue = value }
+        return
+            { ServiceName = sn
+              ParamName = pn
+              ParamValue = value }
     }
 
 let inline (!?) name = XName.Get name
@@ -68,3 +70,5 @@ let getParamValueFromList name section service (parameters: ParameterResultEntry
         && p.ParamName = normalizeParamName (Option.defaultValue "" section) name
 
     parameters |> List.tryFind paramMatcher
+
+let protectAndRun body = Result.protect body ()
