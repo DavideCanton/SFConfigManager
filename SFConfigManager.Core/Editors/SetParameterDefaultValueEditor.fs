@@ -4,6 +4,7 @@ open SFConfigManager.Core.Common
 open SFConfigManager.Core.Editors.Actions
 open SFConfigManager.Core.Context
 open SFConfigManager.Core.Editors.XMLEditor
+open System
 
 let setParameterDefaultValueEditor context service section name value =
     let manifest = context.Manifest
@@ -12,7 +13,8 @@ let setParameterDefaultValueEditor context service section name value =
         normalizeParamNameWithService service section name
 
     let xpath =
-        sprintf "/empty:ApplicationManifest/empty:Parameters/empty:Parameter[@Name=\"%s\"]" paramName
+        String.Format
+            ("/{0}:ApplicationManifest/{0}:Parameters/{0}:Parameter[@Name=\"{1}\"]", DefaultNamespace, paramName)
 
     let actions =
         [ SetAttribute

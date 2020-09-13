@@ -7,10 +7,13 @@ open SFConfigManager.Core.Context
 open Argu
 open SFConfigManager.Main.Arguments
 open SFConfigManager.Data.Parsers.ParserTypes
+open SFConfigManager.Data
 open SFConfigManager.Extensions.ResultComputationExpression
+open SFConfigManager.Extensions.MaybeComputationExpression
 
-let getSfProj path =
+let parseSfProj path =
     let projs = SolutionParser.parseSolution path
+
     match projs with
     | Ok ({ SfProjList = (s :: _) }) -> SFProjParser.parseSFProj s
     | _ -> Error ProjectNotFoundException
@@ -26,9 +29,10 @@ let parseParameters (parameters: SFProjParseResult) =
 
 let getDefaultSolutionPath () =
     let files = Directory.GetFiles(".", "*.sln")
-    match Array.length files with
-    | 1 -> Ok files.[0]
-    | 0 -> Error NoSolutionFoundException
+
+    match files with
+    | [| f |] -> Ok f
+    | [||] -> Error NoSolutionFoundException
     | _ -> Error MultipleSolutionsFoundException
 
 let throwIfError (r: Result<'a, exn>) =
@@ -55,32 +59,33 @@ let parseSettings (sfProjPath: string) services =
 
 let private buildContext path service =
     resultExpr {
-        let builder = ContextBuilder.newContext ()
 
-        let! sfProjPath = getSfProj path
+        let! parsedSfProj = parseSfProj path
+        let! parameters = parseParameters parsedSfProj
+        let! manifest = ManifestParser.parseManifest parsedSfProj.ManifestPath
+        let! settings = parseSettings parsedSfProj.FilePath parsedSfProj.Services
 
-        let builder =
-            ContextBuilder.withSfProj builder sfProjPath
-
-        let! parameters = parseParameters builder.SfProj.Value
-
-        let builder =
-            ContextBuilder.withParameters builder parameters
-
-        let! manifest = ManifestParser.parseManifest builder.SfProj.Value.ManifestPath
-
-        let builder =
-            ContextBuilder.withManifest builder manifest
-
-        let! settings = parseSettings builder.SfProj.Value.FilePath builder.SfProj.Value.Services
+        let serviceTypeName = 
+            maybe {
+                let! defaultServices = manifest.RootElement.DefaultServices
+                let services = defaultServices.Services |> Seq.ofArray
+                let! foundService = Seq.tryFind (fun (x: FabricTypes.Service) -> x.Name = service) services
+                let! statelessService = foundService.StatelessService
+                return statelessService.ServiceTypeName
+            }
 
         let serviceSettings =
-            List.tryFind (fun x -> x.Service = service) settings
+            List.tryFind (fun x -> x.Service = serviceTypeName.Value) settings
 
-        let builder =
-            ContextBuilder.withSettings builder serviceSettings
+        let context =
+            ContextBuilder.newContext ()
+            |> ContextBuilder.withSfProj parsedSfProj
+            |> ContextBuilder.withParameters parameters
+            |> ContextBuilder.withManifest manifest
+            |> ContextBuilder.withSettings serviceSettings
+            |> ContextBuilder.build
 
-        return! (ContextBuilder.build builder)
+        return! context
     }
 
 
@@ -92,5 +97,5 @@ let getSolutionPath (arguments: ParseResults<SfConfigArgs>) =
 let buildContextAndExecute path service (fn: Context -> Result<unit, exn>) =
     resultExpr {
         let! ctx = buildContext path service
-        do! fn ctx
+        return! fn ctx
     }

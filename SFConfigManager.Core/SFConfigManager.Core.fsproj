@@ -13,6 +13,7 @@
     <Compile Include="Context.fs" />
     <Compile Include="Editors\Actions.fs" />
     <Compile Include="Editors\XMLEditor.fs" />
+    <Compile Include="Editors\AddParameterEditor.fs" />
     <Compile Include="Editors\SetParameterDefaultValueEditor.fs" />
     <Compile Include="Editors\SetParameterValueEditor.fs" />
     <Compile Include="Parsers\ManifestParser.fs" />

@@ -52,6 +52,7 @@ let private joinParamName parts =
     |> String.concat "_"
     |> String.trim (List.singleton '_')
 
+
 let normalizeParamNameWithService service section name =
     let addSection (section: string option) (a, b) =
         match section with
@@ -61,6 +62,10 @@ let normalizeParamNameWithService service section name =
     (service, name)
     |> addSection section
     |> joinParamName
+
+let getParamNamePrefix service section =
+    let normalized = normalizeParamNameWithService service section ""
+    normalized + "_"
 
 let normalizeParamName section name = [ section; name ] |> joinParamName
 

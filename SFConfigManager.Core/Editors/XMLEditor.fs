@@ -13,6 +13,7 @@ exception ErrorInActionException of message: string
 let addTagAfter (element: XElement) (newTag: XElement) = element.AddAfterSelf(newTag)
 
 let addLastChild (element: XElement) (newTag: XElement) = element.Add(newTag)
+let DefaultNamespace = "empty"
 
 let getNamespaces (root: XElement) =
     let getName (vs: XAttribute) =
@@ -26,7 +27,7 @@ let getNamespaces (root: XElement) =
 
         Seq.iter adder namespaces
 
-        manager.AddNamespace("empty", manager.DefaultNamespace)
+        manager.AddNamespace(DefaultNamespace, manager.DefaultNamespace)
         manager
 
     let getAttrNamespace (vs: XAttribute seq) =
@@ -45,6 +46,11 @@ let findElementByXPath (xpath: string) (root: XElement) =
     let ns = getNamespaces root
     let element = root.XPathSelectElement(xpath, ns)
     Option.ofObj element
+
+let findElementsByXPath (xpath: string) (root: XElement) =
+    let ns = getNamespaces root
+    let elements = root.XPathSelectElements(xpath, ns)
+    List.ofSeq elements
 
 let setAttributeByXPath (path: string) (name: string) (value: string) (root: XElement) =
     let body () =
@@ -66,6 +72,8 @@ let private processAction (root: XElement) action =
         match findElementByXPath path root with
         | Some elFound -> addTagAfter elFound element |> Ok
         | None -> ErrorInActionException "Tag not found" |> Error
+    | AddSiblingElement { Target = target; Element = element} ->
+        addTagAfter target element |> Ok
     | AddLastChild { Path = path; Element = element } ->
         match findElementByXPath path root with
         | Some elFound -> addLastChild elFound element |> Ok

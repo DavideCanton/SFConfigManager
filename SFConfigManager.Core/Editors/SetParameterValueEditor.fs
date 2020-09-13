@@ -6,19 +6,19 @@ open SFConfigManager.Core.Common
 open SFConfigManager.Core.Editors.Actions
 open SFConfigManager.Core.Editors.XMLEditor
 open SFConfigManager.Core.Context
+open System
 
 let private filterEnvironments (argEnvironments: Set<string>) (envs: ParametersParseResult list) =
-    envs
-    |> List.filter (fun e ->
-        argEnvironments.IsEmpty
-        || argEnvironments.Contains e.FileName)
+    if argEnvironments.IsEmpty
+    then envs
+    else List.filter (fun e -> argEnvironments.Contains e.FileName) envs
 
 let setParamValueEditor (context: Context) service section name value environments =
     let paramName =
         normalizeParamNameWithService service section name
 
     let xpath =
-        sprintf "/empty:Application/empty:Parameters/empty:Parameter[@Name=\"%s\"]" paramName
+        String.Format("/{0}:Application/{0}:Parameters/{0}:Parameter[@Name=\"{1}\"]", DefaultNamespace, paramName)
 
     let processEnvironment env =
         let actions =

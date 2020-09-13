@@ -7,13 +7,23 @@ type ResultBuilder internal () =
 
     member _.ReturnFrom v = v
 
+    member this.Yield v = this.Return v
+    member this.YieldFrom v = this.ReturnFrom v
+
     member _.Zero () = Ok ()
 
-    member _.Combine (a, b) =
+    member this.Combine (a, b) =
         match a with
-        | Ok _ -> b
+        | Ok _ -> this.Run b
         | Error _ as e -> e
 
-    member _.Delay f = f ()
+    member _.Delay f = f
+
+    member _.Run f = f ()
+
+    member this.For (vs, f) =
+        let z = this.Zero ()
+        let folder a v = this.Bind(a, fun _ -> f v)
+        List.fold folder z vs
 
 let resultExpr = ResultBuilder()

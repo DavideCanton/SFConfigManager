@@ -60,6 +60,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Compile Include="ManifestParserTests.fs" />
+    <Compile Include="ResultComputationExpressionTests.fs" />
     <Compile Include="XMLEditorTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

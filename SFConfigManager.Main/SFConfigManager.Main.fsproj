@@ -10,6 +10,10 @@
     <Compile Include="Arguments\ArgumentDefinitions.fs" />
     <Compile Include="Definitions.fs" />
     <Compile Include="Utils.fs" />
+    <Compile Include="CommandLineHandlers\AddHandler.fs" />
+    <Compile Include="CommandLineHandlers\GetHandler.fs" />
+    <Compile Include="CommandLineHandlers\SetDefaultHandler.fs" />
+    <Compile Include="CommandLineHandlers\SetHandler.fs" />
     <Compile Include="CommandLine.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

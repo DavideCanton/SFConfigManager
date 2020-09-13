@@ -24,14 +24,14 @@ module ContextBuilder =
           Parameters = None
           Manifest = None }
 
-    let withSfProj (ctx: ContextBuilderImpl) sfProj = { ctx with SfProj = Some sfProj }
-    let withSettings (ctx: ContextBuilderImpl) settings = { ctx with Settings = settings }
+    let withSfProj sfProj (ctx: ContextBuilderImpl) = { ctx with SfProj = Some sfProj }
+    let withSettings settings (ctx: ContextBuilderImpl) = { ctx with Settings = settings }
 
-    let withParameters (ctx: ContextBuilderImpl) parameters =
+    let withParameters parameters (ctx: ContextBuilderImpl) =
         { ctx with
               Parameters = Some parameters }
 
-    let withManifest (ctx: ContextBuilderImpl) manifest = { ctx with Manifest = Some manifest }
+    let withManifest manifest (ctx: ContextBuilderImpl) = { ctx with Manifest = Some manifest }
 
     let build ctx: Result<Context, exn> =
         let vals =

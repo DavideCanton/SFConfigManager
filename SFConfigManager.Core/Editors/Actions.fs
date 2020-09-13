@@ -11,7 +11,10 @@ type SetAttributeArgs =
 
 type AddActionArgs = { Path: string; Element: XElement }
 
+type AddWithElementArgs = { Target: XElement; Element: XElement }
+
 type XMLAction =
     | SetAttribute of SetAttributeArgs
+    | AddSiblingElement of AddWithElementArgs
     | AddSibling of AddActionArgs
     | AddLastChild of AddActionArgs

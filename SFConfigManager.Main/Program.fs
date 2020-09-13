@@ -6,6 +6,10 @@ open FSharpPlus
 open SFConfigManager.Extensions.ResultExtensions
 open SFConfigManager.Main.CommandLine
 open SFConfigManager.Core.Common
+open SFConfigManager.Main.CommandLineHandlers.AddHandler
+open SFConfigManager.Main.CommandLineHandlers.GetHandler
+open SFConfigManager.Main.CommandLineHandlers.SetDefaultHandler
+open SFConfigManager.Main.CommandLineHandlers.SetHandler
 
 let version = "1.0.0"
 

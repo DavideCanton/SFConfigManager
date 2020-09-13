@@ -5,7 +5,7 @@ open Argu
 type AddParameterArgs =
     | [<ExactlyOnce; MainCommand>] Service of string
     | [<ExactlyOnce>] Name of string
-    | Section of string option
+    | [<ExactlyOnce>] Section of string
     | [<ExactlyOnce>] Value of string
 
     interface IArgParserTemplate with
