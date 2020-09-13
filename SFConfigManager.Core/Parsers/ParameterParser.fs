@@ -35,4 +35,4 @@ let parseParameters (path: string) =
         |> FabricTypes.Parse
         |> getParameters fileName path
 
-    protectAndRun body
+    protectAndRun body |> Result.flatten
