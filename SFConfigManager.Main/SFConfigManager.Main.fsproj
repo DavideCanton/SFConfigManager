@@ -1,11 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
     <OutputType>Exe</OutputType>
     <AssemblyName>sfconfig</AssemblyName>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Include="Arguments\ArgumentDefinitions.fs" />
     <Compile Include="Definitions.fs" />
@@ -17,14 +17,9 @@
     <Compile Include="CommandLine.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Argu" Version="6.1.1" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\SFConfigManager.Core\SFConfigManager.Core.fsproj" />
     <ProjectReference Include="..\SFConfigManager.Extensions\SFConfigManager.Extensions.fsproj" />
   </ItemGroup>
-
+  <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>
