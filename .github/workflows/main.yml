@@ -25,6 +25,9 @@ jobs:
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v1.6.0
       
+    - name: Restore Paket
+      run: dotnet tool restore
+      
     - name: Restore NuGet
       run: dotnet restore --force --no-cache
     
