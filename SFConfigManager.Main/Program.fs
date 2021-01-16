@@ -3,9 +3,9 @@ module SFConfigManager.Main.Program
 open Argu
 open SFConfigManager.Main.Arguments
 open FSharpPlus
+open SFConfigManager.Core.Common
 open SFConfigManager.Extensions.ResultExtensions
 open SFConfigManager.Main.CommandLine
-open SFConfigManager.Core.Common
 open SFConfigManager.Main.CommandLineHandlers.AddHandler
 open SFConfigManager.Main.CommandLineHandlers.GetHandler
 open SFConfigManager.Main.CommandLineHandlers.SetDefaultHandler

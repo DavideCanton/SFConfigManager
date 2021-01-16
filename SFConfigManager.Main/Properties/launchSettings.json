@@ -2,8 +2,8 @@
   "profiles": {
     "SFConfigManager.Main": {
       "commandName": "Project",
-      "commandLineArgs": "add param ProvaSFWebAPI --name \"Nome\" --section \"MyConfigSection\" --value \"Value\"",
-      "workingDirectory": "C:\\Users\\Davide\\source\\repos\\ProvaSF"
+      "commandLineArgs": "get Backend2 --name InstanceCount --section",
+      "workingDirectory": "C:\\Users\\Davide\\source\\repos\\ProveServiceFabric"
     }
   }
 }

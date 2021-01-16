@@ -11,6 +11,8 @@ open SFConfigManager.Data
 open SFConfigManager.Extensions.ResultComputationExpression
 open SFConfigManager.Extensions.MaybeComputationExpression
 
+exception ServiceNotFound of string
+
 let parseSfProj path =
     let projs = SolutionParser.parseSolution path
 
@@ -74,16 +76,20 @@ let private buildContext path service =
                 return statelessService.ServiceTypeName
             }
 
-        let serviceSettings =
-            List.tryFind (fun x -> x.Service = serviceTypeName.Value) settings
+        let buildContext serviceTypeName =
+            let serviceSettings =
+                List.tryFind (fun x -> x.Service = serviceTypeName) settings
 
-        let context =
             ContextBuilder.newContext ()
             |> ContextBuilder.withSfProj parsedSfProj
             |> ContextBuilder.withParameters parameters
             |> ContextBuilder.withManifest manifest
             |> ContextBuilder.withSettings serviceSettings
             |> ContextBuilder.build
+
+        let context = serviceTypeName
+                      |> Option.toResultWith (ServiceNotFound service)
+                      |> Result.bind buildContext
 
         return! context
     }
