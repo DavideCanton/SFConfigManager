@@ -40,14 +40,10 @@ let main argv =
 
     let result = protectAndRun fn |> Result.flatten
 
-    let exitWithError message =
-        eprintfn "%s" message
+    let exitWithError (ex: exn) =
+        eprintfn "%A" ex
         exit 1
 
     match result with
     | Ok _ -> 0
-    | Error NoSolutionFoundException -> exitWithError "No .sln found"
-    | Error MultipleSolutionsFoundException ->
-        exitWithError "Multiple .sln found, please specify which to use with the -s parameter"
-    | Error ProjectNotFoundException -> exitWithError "No .sfproj found"
-    | Error e -> exitWithError e.Message
+    | Error e -> exitWithError e
