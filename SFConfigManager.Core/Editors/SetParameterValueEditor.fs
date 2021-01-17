@@ -15,7 +15,7 @@ let private filterEnvironments (argEnvironments: Set<string>) (envs: ParametersP
 
 let setParamValueEditor (context: Context) service section name value environments =
     let paramName =
-        normalizeParamNameWithService service section name
+        normalizeParamNameWithService context service section name
 
     let xpath =
         String.Format("/{0}:Application/{0}:Parameters/{0}:Parameter[@Name=\"{1}\"]", DefaultNamespace, paramName)

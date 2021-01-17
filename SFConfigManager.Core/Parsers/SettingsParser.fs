@@ -25,6 +25,7 @@ let private extractSettings (settings: FabricTypes.Settings2) settingsPath (mani
     { Sections = sections
       ServiceFilePath = serviceManifestPath
       Service = manifest.ServiceTypes.StatelessServiceTypes.[0].ServiceTypeName
+      ServicePkgName = manifest.Name
       SettingsFilePath = settingsPath
       RootServiceElement = manifest
       RootSettingsElement = settings }

@@ -3,14 +3,19 @@
 open SFConfigManager.Data
 
 type ParameterResultEntry =
-    { ServiceName: string
-      ParamName: string
+    { ParamName: string
       ParamValue: string }
+
+type ManifestSectionKey =
+    { ServicePkgName: string 
+      Section: string
+      ParamName: string }
 
 type ManifestParseResult =
     { Parameters: ParameterResultEntry list
       ManifestPath: string
-      RootElement: FabricTypes.ApplicationManifest }
+      RootElement: FabricTypes.ApplicationManifest
+      Sections: Map<ManifestSectionKey, string> }
 
 type SolutionParseResult = { SfProjList: string list }
 
@@ -26,6 +31,7 @@ type SettingsParseResult =
     { Service: string
       ServiceFilePath: string
       SettingsFilePath: string
+      ServicePkgName: string
       Sections: Map<string, (string * string) list>
       RootServiceElement: FabricTypes.ServiceManifest
       RootSettingsElement: FabricTypes.Settings2 }

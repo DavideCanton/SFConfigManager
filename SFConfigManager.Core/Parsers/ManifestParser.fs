@@ -7,17 +7,52 @@ open SFConfigManager.Core.Common
 open FSharpPlus
 open SFConfigManager.Extensions.MaybeComputationExpression
 
+let private buildParameters (root: FabricTypes.ApplicationManifest) =
+    maybe {
+        let! parameters = root.Parameters
+        return parameters.Parameters |> Seq.ofArray
+    }
+    |> Option.orElseWith (fun () -> Some Seq.empty)
+    |> Option.get
+    |> Seq.map (P2 >> mapParam)
+    |> Seq.toList
+
+let private buildSectionItem (root: FabricTypes.ServiceManifestImport): (ManifestSectionKey * string) list =
+    let pkgName =
+        root.ServiceManifestRef.ServiceManifestName
+
+    let buildItem (c: FabricTypes.Section): (ManifestSectionKey * string) seq =
+        c.Parameters
+        |> Seq.map
+            (fun x ->
+                ({ ServicePkgName = pkgName
+                   Section = c.Name
+                   ParamName = x.Name },
+                 x.Value))
+
+    let buildItemsFromConfig (c: FabricTypes.ConfigOverrides) =
+        c.ConfigOverrides
+        |> Seq.collect
+            (fun x ->
+                x.Settings
+                |> Option.map (fun y -> y.Sections |> Seq.collect buildItem)
+                |> Option.orElse (Some Seq.empty)
+                |> Option.get)
+
+    root.ConfigOverrides
+    |> Option.map buildItemsFromConfig
+    |> Option.orElse (Some Seq.empty)
+    |> Option.get
+    |> Seq.toList
+
+let private buildSections (root: FabricTypes.ApplicationManifest) =
+    root.ServiceManifestImports
+    |> Seq.collect buildSectionItem
+    |> Map.ofSeq
+
 let private parseManifestData path (root: FabricTypes.ApplicationManifest) =
-    { Parameters =
-          maybe {
-              let! parameters = root.Parameters
-              return parameters.Parameters |> Seq.ofArray
-          }
-          |> Option.orElseWith (fun () -> Some Seq.empty)
-          |> Option.get
-          |> Seq.map (Parameters.P2 >> mapParam)
-          |> Seq.choose id
-          |> Seq.toList
+    { Parameters = buildParameters root
+      Sections = buildSections root
       ManifestPath = path
       RootElement = root }
 

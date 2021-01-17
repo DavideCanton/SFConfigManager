@@ -10,7 +10,7 @@ let setParameterDefaultValueEditor context service section name value =
     let manifest = context.Manifest
 
     let paramName =
-        normalizeParamNameWithService service section name
+        normalizeParamNameWithService context service section name
 
     let xpath =
         String.Format
