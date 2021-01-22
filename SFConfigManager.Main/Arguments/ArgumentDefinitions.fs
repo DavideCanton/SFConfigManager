@@ -27,7 +27,7 @@ type AddArgs =
 type GetArgs =
     | [<ExactlyOnce; MainCommand>] Service of string
     | [<ExactlyOnce>] Name of string
-    | Section of string option
+    | [<ExactlyOnce>] Section of string
 
     interface IArgParserTemplate with
         member this.Usage =
@@ -39,7 +39,7 @@ type GetArgs =
 type SetArgs =
     | [<ExactlyOnce; MainCommand>] Service of string
     | [<ExactlyOnce>] Name of string
-    | Section of string option
+    | [<ExactlyOnce>] Section of string
     | [<ExactlyOnce>] Value of string
     | Environments of string list
 
@@ -55,7 +55,7 @@ type SetArgs =
 type SetDefaultArgs =
     | [<ExactlyOnce; MainCommand>] Service of string
     | [<ExactlyOnce>] Name of string
-    | Section of string option
+    | [<ExactlyOnce>] Section of string
     | [<ExactlyOnce>] Value of string
 
     interface IArgParserTemplate with

@@ -12,13 +12,13 @@
             "program": "${workspaceFolder}/SFConfigManager.Main/bin/Debug/netcoreapp3.1/sfconfig.exe",
             "args": [
                 "get",
-                "Crif.REApp.CCO.FE.WebPortalSLS",
+                "Crif.REApp.CCO.BFF.FacadeSLS",
                 "--section",
-                "__Public__environment",
+                "URLsConfig",
                 "--name",
-                "clientId"
+                "FCAapiUrl"
             ],
-            "cwd": "C:\\CREApp\\Main\\src\\Services\\CCO.FE",
+            "cwd": "C:\\CREApp\\Main\\src\\Services\\CCO.BFF",
             "stopAtEntry": false,
             "console": "internalConsole"
         }

@@ -12,7 +12,7 @@ let setDefault (g: ParseResults<SetDefaultArgs>) (root: ParseResults<SfConfigArg
     let value =
         g.GetResult(SetDefaultArgs.Value, defaultValue = "")
 
-    let section = g.GetResult(SetDefaultArgs.Section)
+    let section = g.GetResult(SetDefaultArgs.Section, defaultValue = "")
 
     let service =
         g.GetResult(SetDefaultArgs.Service, defaultValue = "")

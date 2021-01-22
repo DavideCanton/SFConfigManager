@@ -9,8 +9,8 @@ open System
 let setParameterDefaultValueEditor context service section name value =
     let manifest = context.Manifest
 
-    let paramName =
-        normalizeParamNameWithService context service section name
+    let (Ok paramName) =
+        normalizeParamNameWithService context section name
 
     let xpath =
         String.Format
