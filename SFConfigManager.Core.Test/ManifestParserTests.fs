@@ -12,8 +12,7 @@ open SFConfigManager.Data.Parsers.ParserTypes
 let testFolder =
     Path.Combine(TestContext.CurrentContext.TestDirectory, "Data", "ManifestSamples")
 
-let assertParamIs (parameter: ParameterResultEntry) serviceName paramName paramValue =
-    parameter.ServiceName |> should equal serviceName
+let assertParamIs (parameter: ParameterResultEntry) paramName paramValue =
     parameter.ParamName |> should equal paramName
     parameter.ParamValue |> should equal paramValue
 
@@ -38,12 +37,12 @@ type XMLEditorTests() =
 
         parameters |> should haveLength 6
         
-        assertParamIs parameters.[0] "Backend" "InstanceCount" "-1"
-        assertParamIs parameters.[1] "ProvaSFWebAPI" "ASPNETCORE_ENVIRONMENT" ""
-        assertParamIs parameters.[2] "ProvaSFWebAPI" "InstanceCount" "-1"
-        assertParamIs parameters.[3] "ProvaSFWebAPI" "MyConfigSection_MyParameter" "Default"
-        assertParamIs parameters.[4] "ProvaSFFrontend" "ASPNETCORE_ENVIRONMENT" ""
-        assertParamIs parameters.[5] "ProvaSFFrontend" "InstanceCount" "-1"
+        assertParamIs parameters.[0] "Backend_InstanceCount" "-1"
+        assertParamIs parameters.[1] "ProvaSFWebAPI_ASPNETCORE_ENVIRONMENT" ""
+        assertParamIs parameters.[2] "ProvaSFWebAPI_InstanceCount" "-1"
+        assertParamIs parameters.[3] "ProvaSFWebAPI_MyConfigSection_MyParameter" "Default"
+        assertParamIs parameters.[4] "ProvaSFFrontend_ASPNETCORE_ENVIRONMENT" ""
+        assertParamIs parameters.[5] "ProvaSFFrontend_InstanceCount" "-1"
 
     [<Test>]
     [<Category("ApplicationManifest Parsing tests")>]

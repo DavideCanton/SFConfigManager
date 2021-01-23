@@ -9,11 +9,16 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/SFConfigManager.Main/bin/Debug/net472/SFConfigManager.Main.exe",
+            "program": "${workspaceFolder}/SFConfigManager.Main/bin/Debug/netcoreapp3.1/sfconfig.exe",
             "args": [
-                "C:\\Users\\Davide\\source\\repos\\ProveServiceFabric\\ProvaSF.sln"
+                "get",
+                "Crif.REApp.CCO.BFF.FacadeSLS",
+                "--section",
+                "URLsConfig",
+                "--name",
+                "FCAapiUrl"
             ],
-            "cwd": "${workspaceFolder}",
+            "cwd": "C:\\CREApp\\Main\\src\\Services\\CCO.BFF",
             "stopAtEntry": false,
             "console": "internalConsole"
         }

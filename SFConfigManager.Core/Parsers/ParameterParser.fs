@@ -10,8 +10,7 @@ open SFConfigManager.Core.Common
 let private extractParams fileName path (root: FabricTypes.Application) =
     let p =
         root.Parameters
-        |> Seq.map (Common.Parameters.P1 >> Common.mapParam)
-        |> Seq.choose id
+        |> Seq.map (P1 >> mapParam)
         |> Seq.toList
 
     Ok

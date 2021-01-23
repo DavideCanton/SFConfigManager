@@ -1,22 +1,16 @@
 module SFConfigManager.Core.Common
 
 open FSharpPlus
-open SFConfigManager.Extensions.MaybeComputationExpression
+open SFConfigManager.Core.Context
 open SFConfigManager.Data
 open SFConfigManager.Data.Parsers.ParserTypes
 open System.Xml.Linq
+open SFConfigManager.Extensions.ResultComputationExpression
 
 exception InvalidFileException of name: string
 exception FileNotFoundException of name: string
-
-let private splitTwo (sep: string) (value: string) =
-    let list = String.split [ sep ] value |> Seq.toList
-
-    match list with
-    | [] -> None
-    | (sn :: pn) -> Some(sn, String.concat "_" pn)
-
-let private extract (p: string) = splitTwo "_" p
+exception ParamNotFoundException of name: string
+exception IllegalStateException of message: string
 
 type Parameters =
     | P1 of FabricTypes.Parameter
@@ -30,50 +24,38 @@ let (|Param|) p =
 let private getParamName (Param (name, _)) = name
 let private getParamValue (Param (_, value)) = value
 
-let mapParam (param: Parameters): ParameterResultEntry option =
-    maybe {
-        let value = getParamValue param
-        let name = getParamName param
-        let! (sn, pn) = extract name
-
-        return
-            { ServiceName = sn
-              ParamName = pn
-              ParamValue = value }
-    }
+let mapParam (param: Parameters): ParameterResultEntry =
+    { ParamName = getParamName param
+      ParamValue = getParamValue param }
 
 let inline (!?) name = XName.Get name
 
 let mapFirst fn (a, b) = (fn a, b)
 let mapSecond fn (a, b) = (a, fn b)
 
-let private joinParamName parts =
-    parts
-    |> String.concat "_"
-    |> String.trim (List.singleton '_')
-
-
-let normalizeParamNameWithService service section name =
-    let addSection (section: string option) (a, b) =
-        match section with
-        | Some x -> [ a; x; b ]
-        | None -> [ a; b ]
-
-    (service, name)
-    |> addSection section
-    |> joinParamName
-
-let getParamNamePrefix service section =
-    let normalized = normalizeParamNameWithService service section ""
-    normalized + "_"
-
-let normalizeParamName section name = [ section; name ] |> joinParamName
-
-let getParamValueFromList name section service (parameters: ParameterResultEntry list) =
-    let paramMatcher (p: ParameterResultEntry) =
-        p.ServiceName = service
-        && p.ParamName = normalizeParamName (Option.defaultValue "" section) name
-
+let getParamValueFromList name (parameters: ParameterResultEntry list) =
+    let paramMatcher (p: ParameterResultEntry) = p.ParamName = name
     parameters |> List.tryFind paramMatcher
+
+let normalizeParamNameWithService (context: Context) section name =
+    resultExpr {
+        let! pkgName =
+            context.Settings
+            |> Option.map (fun (s: SettingsParseResult) -> s.ServicePkgName)
+            |> Option.toResultWith (IllegalStateException "Settings not found")
+
+        let key: ManifestSectionKey =
+            { ServicePkgName = pkgName
+              Section = section
+              ParamName = name }
+
+        let r =
+            context.Manifest.Sections
+            |> Map.tryFind key
+            |> Option.map (String.trim [ '['; ']' ])
+            |> Option.toResultWith (ParamNotFoundException(sprintf "%s %s" section name))
+
+        return! r
+    }
 
 let protectAndRun body = Result.protect body ()

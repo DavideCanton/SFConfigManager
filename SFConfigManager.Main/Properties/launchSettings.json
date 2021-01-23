@@ -2,8 +2,8 @@
   "profiles": {
     "SFConfigManager.Main": {
       "commandName": "Project",
-      "commandLineArgs": "get Backend2 --name InstanceCount --section",
-      "workingDirectory": "C:\\Users\\Davide\\source\\repos\\ProveServiceFabric"
+      "commandLineArgs": "add param MioServizio.WebApiSLS --name Schifo --section Gni --value Maccarons --tokenname WebApiSLS_Gni_Schifo",
+      "workingDirectory": "C:\\Users\\Davide\\source\\repos\\MioServizio"
     }
   }
 }
