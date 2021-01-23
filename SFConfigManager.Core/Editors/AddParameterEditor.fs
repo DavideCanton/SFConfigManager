@@ -27,7 +27,7 @@ let private buildParameterManifestElement name value ns =
 
 let private getParamNamePrefix (paramName: string) =
     let index = paramName.LastIndexOf("_")
-    paramName.[index + 1..]
+    paramName.[..index]
 
 let private buildManifestParameterAction (manifest: ManifestParseResult) paramName value =
     let prefix = getParamNamePrefix paramName
@@ -124,12 +124,11 @@ let private updateParameters (parsedParameter: ParametersParseResult) paramName 
 
     actions
 
-let addParameterEditor (context: Context) (section: string) (name: string) (value: string) =
+let addParameterEditor (context: Context) (section: string) (name: string) (paramName: string) (value: string) =
     resultExpr {
         let manifest = context.Manifest
         let settings = context.Settings.Value
         let parameters = context.Parameters
-        let! paramName = normalizeParamNameWithService context section name
 
         let manifestActions =
             updateManifest manifest section name paramName value settings.RootServiceElement.Name

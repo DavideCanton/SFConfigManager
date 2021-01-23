@@ -5,6 +5,7 @@ open Argu
 type AddParameterArgs =
     | [<ExactlyOnce; MainCommand>] Service of string
     | [<ExactlyOnce>] Name of string
+    | [<ExactlyOnce>] TokenName of string
     | [<ExactlyOnce>] Section of string
     | [<ExactlyOnce>] Value of string
 
@@ -14,6 +15,7 @@ type AddParameterArgs =
             | Name _ -> "Parameter name"
             | Section _ -> "Parameter section name"
             | Value _ -> "Parameter value"
+            | TokenName _ -> "Parameter token name to use in parameter files"
             | Service _ -> "Service name"
 
 type AddArgs =

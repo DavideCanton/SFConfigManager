@@ -9,19 +9,22 @@ let add (a: ParseResults<AddArgs>) (root: ParseResults<SfConfigArgs>) =
     let p = a.GetResult(AddArgs.Parameter)
 
     let name =
-        p.GetResult(AddParameterArgs.Name, defaultValue = "")
+        p.GetResult(AddParameterArgs.Name)
+
+    let tokenName =
+        p.GetResult(AddParameterArgs.TokenName)
 
     let value =
-        p.GetResult(AddParameterArgs.Value, defaultValue = "")
+        p.GetResult(AddParameterArgs.Value)
 
     let section = p.GetResult(AddParameterArgs.Section)
 
     let service =
-        p.GetResult(AddParameterArgs.Service, defaultValue = "")
+        p.GetResult(AddParameterArgs.Service)
 
     let path = getSolutionPath root
 
     let editor c =
-        addParameterEditor c section name value
+        addParameterEditor c section name tokenName value
 
     buildContextAndExecute path service editor

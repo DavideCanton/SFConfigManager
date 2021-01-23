@@ -6,16 +6,13 @@ open SFConfigManager.Main.Utils
 open SFConfigManager.Core.Editors
 
 let setDefault (g: ParseResults<SetDefaultArgs>) (root: ParseResults<SfConfigArgs>) =
-    let name =
-        g.GetResult(SetDefaultArgs.Name, defaultValue = "")
+    let name = g.GetResult(SetDefaultArgs.Name)
 
-    let value =
-        g.GetResult(SetDefaultArgs.Value)
+    let value = g.GetResult(SetDefaultArgs.Value)
 
-    let section = g.GetResult(SetDefaultArgs.Section, defaultValue = "")
+    let section = g.GetResult(SetDefaultArgs.Section)
 
-    let service =
-        g.GetResult(SetDefaultArgs.Service, defaultValue = "")
+    let service = g.GetResult(SetDefaultArgs.Service)
 
     let path = getSolutionPath root
 

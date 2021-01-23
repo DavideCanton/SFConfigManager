@@ -8,13 +8,11 @@ open SFConfigManager.Extensions.ResultComputationExpression
 open SFConfigManager.Core.Context
 
 let get (g: ParseResults<GetArgs>) (root: ParseResults<SfConfigArgs>) =
-    let name =
-        g.GetResult(GetArgs.Name, defaultValue = "")
+    let name = g.GetResult(GetArgs.Name)
 
     let section = g.GetResult(GetArgs.Section)
 
-    let service =
-        g.GetResult(GetArgs.Service, defaultValue = "")
+    let service = g.GetResult(GetArgs.Service)
 
     let path = getSolutionPath root
 
@@ -28,10 +26,12 @@ let get (g: ParseResults<GetArgs>) (root: ParseResults<SfConfigArgs>) =
 
     let innerBody (context: Context) =
         resultExpr {
-            let! paramNameForService = normalizeParamNameWithService context section name 
+            let! paramNameForService = normalizeParamNameWithService context section name
             printfn "Value of [Service=%s; Section=%s; Name=%s]" service section name
+
             context.Parameters
             |> List.iter (fun x -> paramPrinter x.FileName paramNameForService x.Params)
+
             paramPrinter "Default Value" paramNameForService context.Manifest.Parameters
         }
 
