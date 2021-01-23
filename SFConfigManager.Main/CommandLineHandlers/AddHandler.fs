@@ -22,6 +22,6 @@ let add (a: ParseResults<AddArgs>) (root: ParseResults<SfConfigArgs>) =
     let path = getSolutionPath root
 
     let editor c =
-        addParameterEditor c service section name value
+        addParameterEditor c section name value
 
     buildContextAndExecute path service editor

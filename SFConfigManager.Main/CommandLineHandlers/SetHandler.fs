@@ -25,6 +25,6 @@ let set (g: ParseResults<SetArgs>) (root: ParseResults<SfConfigArgs>) =
     let path = getSolutionPath root
 
     let editor c =
-        SetParameterValueEditor.setParamValueEditor c service section name value environments
+        SetParameterValueEditor.setParamValueEditor c section name value environments
 
     buildContextAndExecute path service editor

@@ -5,21 +5,27 @@ open SFConfigManager.Core.Editors.Actions
 open SFConfigManager.Core.Context
 open SFConfigManager.Core.Editors.XMLEditor
 open System
+open SFConfigManager.Extensions.ResultComputationExpression
 
-let setParameterDefaultValueEditor context service section name value =
-    let manifest = context.Manifest
+let setParameterDefaultValueEditor context section name value =
 
-    let (Ok paramName) =
-        normalizeParamNameWithService context section name
+    resultExpr {
+        let manifest = context.Manifest
 
-    let xpath =
-        String.Format
-            ("/{0}:ApplicationManifest/{0}:Parameters/{0}:Parameter[@Name=\"{1}\"]", DefaultNamespace, paramName)
+        let! paramName = normalizeParamNameWithService context section name
 
-    let actions =
-        [ SetAttribute
-            { Path = xpath
-              Name = "DefaultValue"
-              Value = value } ]
+        let xpath =
+            String.Format(
+                "/{0}:ApplicationManifest/{0}:Parameters/{0}:Parameter[@Name=\"{1}\"]",
+                DefaultNamespace,
+                paramName
+            )
 
-    processActionsAndSave actions manifest.RootElement.XElement manifest.ManifestPath
+        let actions =
+            [ SetAttribute
+                { Path = xpath
+                  Name = "DefaultValue"
+                  Value = value } ]
+
+        return! processActionsAndSave actions manifest.RootElement.XElement manifest.ManifestPath
+    }

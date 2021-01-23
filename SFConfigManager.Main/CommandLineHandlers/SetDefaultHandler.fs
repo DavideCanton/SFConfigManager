@@ -20,6 +20,6 @@ let setDefault (g: ParseResults<SetDefaultArgs>) (root: ParseResults<SfConfigArg
     let path = getSolutionPath root
 
     let editor c =
-        SetParameterDefaultValueEditor.setParameterDefaultValueEditor c service section name value
+        SetParameterDefaultValueEditor.setParameterDefaultValueEditor c section name value
 
     buildContextAndExecute path service editor

@@ -13,10 +13,7 @@ let private innerBuildParameterElement name value isDefault ns =
     let element = XElement(XName.Get("Parameter", ns))
 
     let valueAttrName =
-        if isDefault then
-            "DefaultValue"
-        else
-            "Value"
+        if isDefault then "DefaultValue" else "Value"
 
     element.SetAttributeValue(!? "Name", name)
     element.SetAttributeValue(!?valueAttrName, value)
@@ -75,11 +72,7 @@ let private buildManifestConfigAction (manifest: ManifestParseResult) (section: 
 
     AddLastChild { Path = xpath; Element = element }
 
-let private updateManifest context (manifest: ManifestParseResult) service (section: string) name value servicePkgName =
-    // TODO
-    let (Ok paramName) =
-        normalizeParamNameWithService context section name
-
+let private updateManifest (manifest: ManifestParseResult) (section: string) name paramName value servicePkgName =
     let actions =
         [ buildManifestParameterAction manifest paramName value
           buildManifestConfigAction manifest section name paramName servicePkgName ]
@@ -104,10 +97,7 @@ let private updateSettings (settings: SettingsParseResult) (section: string) nam
 
     actions
 
-let private updateParameters context (parsedParameter: ParametersParseResult) service (section: string) name value =
-    let (Ok paramName) =
-        normalizeParamNameWithService context section name
-
+let private updateParameters (parsedParameter: ParametersParseResult) paramName value =
     let prefix = getParamNamePrefix paramName
 
     let xpath =
@@ -134,29 +124,30 @@ let private updateParameters context (parsedParameter: ParametersParseResult) se
 
     actions
 
-let addParameterEditor (context: Context) (service: string) (section: string) (name: string) (value: string) =
-    let manifest = context.Manifest
-    let settings = context.Settings.Value
-    let parameters = context.Parameters
-
-    let manifestActions =
-        updateManifest context manifest service section name value settings.RootServiceElement.Name
-
-    let settingsActions =
-        updateSettings settings section name value
-
-    let tupleGenerator (parsedParameter: ParametersParseResult) =
-        let parametersActions =
-            updateParameters context parsedParameter service section name value
-
-        (parametersActions, parsedParameter.RootElement.XElement, parsedParameter.FilePath)
-
-    let objs =
-        [ (manifestActions, manifest.RootElement.XElement, manifest.ManifestPath)
-          (settingsActions, settings.RootSettingsElement.XElement, settings.SettingsFilePath) ]
-        @ List.map tupleGenerator parameters
-
+let addParameterEditor (context: Context) (section: string) (name: string) (value: string) =
     resultExpr {
+        let manifest = context.Manifest
+        let settings = context.Settings.Value
+        let parameters = context.Parameters
+        let! paramName = normalizeParamNameWithService context section name
+
+        let manifestActions =
+            updateManifest manifest section name paramName value settings.RootServiceElement.Name
+
+        let settingsActions =
+            updateSettings settings section name value
+
+        let tupleGenerator (parsedParameter: ParametersParseResult) =
+            let parametersActions =
+                updateParameters parsedParameter paramName value
+
+            (parametersActions, parsedParameter.RootElement.XElement, parsedParameter.FilePath)
+
+        let objs =
+            [ (manifestActions, manifest.RootElement.XElement, manifest.ManifestPath)
+              (settingsActions, settings.RootSettingsElement.XElement, settings.SettingsFilePath) ]
+            @ List.map tupleGenerator parameters
+
         for (actions, element, filePath) in objs do
             yield! processActionsAndSave actions element filePath
     }
