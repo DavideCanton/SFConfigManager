@@ -2,7 +2,7 @@
   "profiles": {
     "SFConfigManager.Main": {
       "commandName": "Project",
-      "commandLineArgs": "get MioServizio.WebApiSLS --name WebApiName --section WebApiAuth",
+      "commandLineArgs": "set MioServizio.WebApiSLS --name WebApiName --section WebApiAuth --value Maccarons",
       "workingDirectory": "C:\\Users\\Davide\\source\\repos\\MioServizio"
     }
   }

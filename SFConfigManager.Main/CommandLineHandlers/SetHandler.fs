@@ -10,7 +10,7 @@ let set (g: ParseResults<SetArgs>) (root: ParseResults<SfConfigArgs>) =
         g.GetResult(SetArgs.Name, defaultValue = "")
 
     let value =
-        g.GetResult(SetArgs.Value, defaultValue = "")
+        g.GetResult(SetArgs.Value)
 
     let section =
         g.GetResult(SetArgs.Section, defaultValue = "")
