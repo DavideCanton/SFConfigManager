@@ -11,6 +11,8 @@
     <ProjectReference Include="..\SFConfigManager.Extensions\SFConfigManager.Extensions.fsproj" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="paket.references" />
+    <Compile Include="LogUtils.fs" />
     <Compile Include="Context.fs" />
     <Compile Include="Common.fs" />
     <Compile Include="Editors\Actions.fs" />
@@ -24,5 +26,6 @@
     <Compile Include="Parsers\SFProjParser.fs" />
     <Compile Include="Parsers\SolutionParser.fs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

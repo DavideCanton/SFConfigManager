@@ -2,7 +2,7 @@
   "profiles": {
     "SFConfigManager.Main": {
       "commandName": "Project",
-      "commandLineArgs": "add param MioServizio.WebApiSLS --name Schifo --section Gni --value Maccarons --tokenname WebApiSLS_Gni_Schifo",
+      "commandLineArgs": "get MioServizio.WebApiSLS --name WebApiName --section WebApiAuth",
       "workingDirectory": "C:\\Users\\Davide\\source\\repos\\MioServizio"
     }
   }

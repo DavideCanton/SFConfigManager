@@ -7,6 +7,7 @@
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="paket.references" />
     <Compile Include="Arguments\ArgumentDefinitions.fs" />
     <Compile Include="Definitions.fs" />
     <Compile Include="Utils.fs" />

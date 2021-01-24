@@ -5,11 +5,13 @@
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="paket.references" />
     <Compile Include="StringExtensions.fs" />
     <Compile Include="ResultExtensions.fs" />
     <Compile Include="OptionExtensions.fs" />
     <Compile Include="MaybeComputationExpression.fs" />
     <Compile Include="ResultComputationExpression.fs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

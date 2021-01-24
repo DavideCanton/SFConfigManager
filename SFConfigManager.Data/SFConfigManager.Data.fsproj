@@ -5,6 +5,7 @@
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="paket.references" />
     <Compile Include="Types.fs" />
     <Compile Include="Parsers\ParserTypes.fs" />
     <EmbeddedResource Include="Schema\ServiceFabricServiceModel.xsd" />

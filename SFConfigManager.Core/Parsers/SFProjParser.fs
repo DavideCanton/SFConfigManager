@@ -5,6 +5,9 @@ open Microsoft.Build.Construction
 open FSharpPlus
 open SFConfigManager.Extensions.StringExtensions
 open SFConfigManager.Data.Parsers.ParserTypes
+open SFConfigManager.Core
+
+let logger = LogUtils.getLoggerFromString("SFProjParser")
 
 let private getItemInclude (x: ProjectItemElement) = x.Include
 
@@ -36,6 +39,8 @@ let private buildResult (sfProjPath: string) (document: ProjectRootElement) =
         |> Seq.filter (ofType "ProjectReference")
         |> Seq.map (getItemInclude >> relativeToBase)
         |> Seq.toList
+
+    LogUtils.debug logger "Read sfproj file %s" sfProjPath
 
     { FilePath = sfProjPath
       Parameters = parameters
