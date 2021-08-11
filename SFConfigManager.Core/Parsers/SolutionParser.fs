@@ -20,4 +20,5 @@ let parseSolution path =
 
         buildResult sfProjs |> Ok
 
-    with e -> Error e
+    with
+    | e -> Error e

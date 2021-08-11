@@ -33,7 +33,7 @@ module ContextBuilder =
 
     let withManifest manifest (ctx: ContextBuilderImpl) = { ctx with Manifest = Some manifest }
 
-    let build ctx: Result<Context, exn> =
+    let build ctx : Result<Context, exn> =
         let vals =
             [ ctx.SfProj |> Option.map ignore
               ctx.Parameters |> Option.map ignore

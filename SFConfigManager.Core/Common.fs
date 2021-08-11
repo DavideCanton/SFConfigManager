@@ -24,7 +24,7 @@ let (|Param|) p =
 let private getParamName (Param (name, _)) = name
 let private getParamValue (Param (_, value)) = value
 
-let mapParam (param: Parameters): ParameterResultEntry =
+let mapParam (param: Parameters) : ParameterResultEntry =
     { ParamName = getParamName param
       ParamValue = getParamValue param }
 

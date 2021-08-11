@@ -13,7 +13,9 @@ let makeTestFolder s =
     Path.Combine(TestContext.CurrentContext.TestDirectory, "Data", s)
 
 let makeInputFolder s = Path.Combine(makeTestFolder s, "Input")
-let makeOutputFolder s = Path.Combine(makeTestFolder s, "Output")
+
+let makeOutputFolder s =
+    Path.Combine(makeTestFolder s, "Output")
 
 let buildTestSource name =
     let inputFolder = makeInputFolder name
@@ -23,7 +25,8 @@ let buildTestSource name =
         (Path.GetFileNameWithoutExtension n, Path.Combine(inputFolder, n), Path.Combine(outputFolder, n))
 
     let makeTestCase (fileName, inputPath, outputPath) =
-        TestCaseData(inputPath, outputPath).SetName(name + " test [" + fileName + "]")
+        TestCaseData(inputPath, outputPath)
+            .SetName(name + " test [" + fileName + "]")
             .SetCategory("XML Manipulation tests")
 
     Directory.GetFiles(inputFolder, "*.xml")

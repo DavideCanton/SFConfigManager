@@ -108,7 +108,11 @@ type ResultComputationExpressionTests() =
             resultExpr {
                 for i in [ 1; 2; 3 ] do
                     values <- values @ [ i ]
-                    if i = 2 then yield! Error 2 else yield ()
+
+                    if i = 2 then
+                        yield! Error 2
+                    else
+                        yield ()
             }
 
         Result.isError r |> should equal true

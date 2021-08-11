@@ -7,7 +7,7 @@ type ParameterResultEntry =
       ParamValue: string }
 
 type ManifestSectionKey =
-    { ServicePkgName: string 
+    { ServicePkgName: string
       Section: string
       ParamName: string }
 

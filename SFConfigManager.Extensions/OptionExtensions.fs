@@ -5,4 +5,5 @@ module Option =
         match opt with
         | Some v -> fn v
         | None -> ()
+
         opt

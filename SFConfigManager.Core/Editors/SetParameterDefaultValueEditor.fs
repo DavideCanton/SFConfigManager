@@ -23,9 +23,9 @@ let setParameterDefaultValueEditor context section name value =
 
         let actions =
             [ SetAttribute
-                { Path = xpath
-                  Name = "DefaultValue"
-                  Value = value } ]
+                  { Path = xpath
+                    Name = "DefaultValue"
+                    Value = value } ]
 
         return! processActionsAndSave actions manifest.RootElement.XElement manifest.ManifestPath
     }

@@ -25,7 +25,9 @@ let getNamespaces (root: XElement) =
 
     let toManager (namespaces: seq<string * XNamespace>) =
         let manager = XmlNamespaceManager(NameTable())
-        let adder (k, v: XNamespace) = manager.AddNamespace(k, v.NamespaceName)
+
+        let adder (k, v: XNamespace) =
+            manager.AddNamespace(k, v.NamespaceName)
 
         Seq.iter adder namespaces
 
@@ -73,26 +75,27 @@ let saveXML (path: string) (element: XElement) =
         XDocument.Load(fs).Root
 
     let body () =
-        using (makeWriter path) (fun w -> 
-            let el = elementWithoutWhitespaces element    
-            el.Save(w)
-        )
+        using
+            (makeWriter path)
+            (fun w ->
+                let el = elementWithoutWhitespaces element
+                el.Save(w))
 
     protectAndRun body
 
 let private processAction (root: XElement) action =
     match action with
-    | SetAttribute { Path = path; Name = name; Value = value } -> 
-        setAttributeByXPath path name value root
+    | SetAttribute { Path = path
+                     Name = name
+                     Value = value } -> setAttributeByXPath path name value root
 
     | AddSibling { Path = path; Element = element } ->
         match findElementByXPath path root with
         | Some elFound -> addTagAfter elFound element |> Ok
         | None -> ErrorInActionException "Tag not found" |> Error
-    
-    | AddSiblingElement { Target = target; Element = element} ->
-        addTagAfter target element |> Ok
-    
+
+    | AddSiblingElement { Target = target; Element = element } -> addTagAfter target element |> Ok
+
     | AddLastChild { Path = path; Element = element } ->
         match findElementByXPath path root with
         | Some elFound -> addLastChild elFound element |> Ok

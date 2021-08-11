@@ -7,7 +7,8 @@ open SFConfigManager.Extensions.StringExtensions
 open SFConfigManager.Data.Parsers.ParserTypes
 open SFConfigManager.Core
 
-let logger = LogUtils.getLoggerFromString("SFProjParser")
+let logger =
+    LogUtils.getLoggerFromString ("SFProjParser")
 
 let private getItemInclude (x: ProjectItemElement) = x.Include
 
@@ -54,4 +55,5 @@ let parseSFProj (path: string) =
         |> ProjectRootElement.Open
         |> buildResult path
         |> Ok
-    with e -> Error e
+    with
+    | e -> Error e

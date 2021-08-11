@@ -16,7 +16,12 @@ let private extractEntry (section: FabricTypes.Section2) =
 
     (name, p)
 
-let private extractSettings (settings: FabricTypes.Settings2) settingsPath (manifest: FabricTypes.ServiceManifest) serviceManifestPath =
+let private extractSettings
+    (settings: FabricTypes.Settings2)
+    settingsPath
+    (manifest: FabricTypes.ServiceManifest)
+    serviceManifestPath
+    =
     let sections =
         settings.Sections
         |> Seq.map extractEntry
@@ -24,15 +29,24 @@ let private extractSettings (settings: FabricTypes.Settings2) settingsPath (mani
 
     { Sections = sections
       ServiceFilePath = serviceManifestPath
-      Service = manifest.ServiceTypes.StatelessServiceTypes.[0].ServiceTypeName
+      Service =
+          manifest.ServiceTypes.StatelessServiceTypes.[0]
+              .ServiceTypeName
       ServicePkgName = manifest.Name
       SettingsFilePath = settingsPath
       RootServiceElement = manifest
       RootSettingsElement = settings }
 
-let private buildResult (settings: FabricTypes.Choice) settingsPath (serviceManifest: FabricTypes.Choice) serviceManifestPath =
+let private buildResult
+    (settings: FabricTypes.Choice)
+    settingsPath
+    (serviceManifest: FabricTypes.Choice)
+    serviceManifestPath
+    =
     match (settings.Settings, serviceManifest.ServiceManifest) with
-    | (Some settingsRoot, Some manifestRoot) -> Ok <| extractSettings settingsRoot settingsPath manifestRoot serviceManifestPath
+    | (Some settingsRoot, Some manifestRoot) ->
+        Ok
+        <| extractSettings settingsRoot settingsPath manifestRoot serviceManifestPath
     | (Some _, None) -> Error <| InvalidFileException serviceManifestPath
     | _ -> Error <| InvalidFileException settingsPath
 
@@ -45,14 +59,17 @@ let parseSettings path =
         Path.Combine("PackageRoot", "ServiceManifest.xml")
 
     let appendPath = flip <| curry Path.Combine
+
     try
         let settingsPath = appendPath settingsFile path
+
         let settings =
             settingsPath
             |> File.ReadAllText
             |> FabricTypes.Parse
 
         let serviceManifestPath = appendPath serviceManifestFile path
+
         let serviceManifest =
             serviceManifestPath
             |> File.ReadAllText
@@ -60,4 +77,5 @@ let parseSettings path =
 
 
         buildResult settings settingsPath serviceManifest serviceManifestPath
-    with e -> Error e
+    with
+    | e -> Error e

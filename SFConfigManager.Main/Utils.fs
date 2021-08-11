@@ -50,9 +50,10 @@ let parseSettings (sfProjPath: string) services =
         |> Path.GetDirectoryName
 
     services
-    |> List.map
-        (normalizeAndAppendPath
-         >> SettingsParser.parseSettings)
+    |> List.map (
+        normalizeAndAppendPath
+        >> SettingsParser.parseSettings
+    )
     |> Result.partition
     |> fun (oks, errors) ->
         match errors with
@@ -67,7 +68,7 @@ let private buildContext path service =
         let! manifest = ManifestParser.parseManifest parsedSfProj.ManifestPath
         let! settings = parseSettings parsedSfProj.FilePath parsedSfProj.Services
 
-        let serviceTypeName = 
+        let serviceTypeName =
             maybe {
                 let! defaultServices = manifest.RootElement.DefaultServices
                 let services = defaultServices.Services |> Seq.ofArray
@@ -87,9 +88,10 @@ let private buildContext path service =
             |> ContextBuilder.withSettings serviceSettings
             |> ContextBuilder.build
 
-        let context = serviceTypeName
-                      |> Option.toResultWith (ServiceNotFoundException service)
-                      |> Result.bind buildContext
+        let context =
+            serviceTypeName
+            |> Option.toResultWith (ServiceNotFoundException service)
+            |> Result.bind buildContext
 
         return! context
     }

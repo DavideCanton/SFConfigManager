@@ -22,6 +22,7 @@ let logger = LogUtils.getLoggerFromString "Program"
 
 let mainBody (arguments: ParseResults<SfConfigArgs>) =
     let subCommand = arguments.GetSubCommand()
+
     match subCommand with
     | Add r -> processCommand subCommand add r arguments
     | Get r -> processCommand subCommand get r arguments
@@ -32,7 +33,7 @@ let mainBody (arguments: ParseResults<SfConfigArgs>) =
     | Version -> Ok()
 
 let configureLogging () =
-    let hierarchy = LogManager.GetRepository() :?>  Hierarchy
+    let hierarchy = LogManager.GetRepository() :?> Hierarchy
     let layout = PatternLayout()
     layout.ConversionPattern <- "%date [%thread] %-5level %logger [%property{NDC}] - %message%newline"
     layout.ActivateOptions()

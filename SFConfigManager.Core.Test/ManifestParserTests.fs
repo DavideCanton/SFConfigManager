@@ -33,10 +33,10 @@ type XMLEditorTests() =
         let parsedManifest = Result.get result
 
         parsedManifest.ManifestPath |> should equal path
-        let parameters = parsedManifest.Parameters 
+        let parameters = parsedManifest.Parameters
 
         parameters |> should haveLength 6
-        
+
         assertParamIs parameters.[0] "Backend_InstanceCount" "-1"
         assertParamIs parameters.[1] "ProvaSFWebAPI_ASPNETCORE_ENVIRONMENT" ""
         assertParamIs parameters.[2] "ProvaSFWebAPI_InstanceCount" "-1"
@@ -47,23 +47,27 @@ type XMLEditorTests() =
     [<Test>]
     [<Category("ApplicationManifest Parsing tests")>]
     member _.ManifestParserTestFail() =
-        let path = Path.Combine(testFolder, "InvalidSample1.xml")
+        let path =
+            Path.Combine(testFolder, "InvalidSample1.xml")
 
         let result = ManifestParser.parseManifest path
 
         Result.isError result |> should be True
         let error = Result.getError result
-        
-        error |> should be instanceOfType<InvalidFileException>
+
+        error
+        |> should be instanceOfType<InvalidFileException>
 
     [<Test>]
     [<Category("ApplicationManifest Parsing tests")>]
     member _.ManifestParserTestNotFound() =
-        let path = Path.Combine(testFolder, "NonExistantFile.xml")
+        let path =
+            Path.Combine(testFolder, "NonExistantFile.xml")
 
         let result = ManifestParser.parseManifest path
 
         Result.isError result |> should be True
         let error = Result.getError result
-        
-        error |> should be instanceOfType<FileNotFoundException>
+
+        error
+        |> should be instanceOfType<FileNotFoundException>

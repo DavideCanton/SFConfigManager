@@ -17,11 +17,11 @@ let private buildParameters (root: FabricTypes.ApplicationManifest) =
     |> Seq.map (P2 >> mapParam)
     |> Seq.toList
 
-let private buildSectionItem (root: FabricTypes.ServiceManifestImport): (ManifestSectionKey * string) list =
+let private buildSectionItem (root: FabricTypes.ServiceManifestImport) : (ManifestSectionKey * string) list =
     let pkgName =
         root.ServiceManifestRef.ServiceManifestName
 
-    let buildItem (c: FabricTypes.Section): (ManifestSectionKey * string) seq =
+    let buildItem (c: FabricTypes.Section) : (ManifestSectionKey * string) seq =
         c.Parameters
         |> Seq.map
             (fun x ->

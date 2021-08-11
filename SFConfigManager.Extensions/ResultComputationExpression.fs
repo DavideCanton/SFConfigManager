@@ -1,7 +1,7 @@
 module SFConfigManager.Extensions.ResultComputationExpression
 
 type ResultBuilder internal () =
-    member _.Bind (x, f) = Result.bind f x
+    member _.Bind(x, f) = Result.bind f x
 
     member _.Return v = Ok v
 
@@ -10,9 +10,9 @@ type ResultBuilder internal () =
     member this.Yield v = this.Return v
     member this.YieldFrom v = this.ReturnFrom v
 
-    member _.Zero () = Ok ()
+    member _.Zero() = Ok()
 
-    member this.Combine (a, b) =
+    member this.Combine(a, b) =
         match a with
         | Ok _ -> this.Run b
         | Error _ as e -> e
@@ -21,9 +21,9 @@ type ResultBuilder internal () =
 
     member _.Run f = f ()
 
-    member this.For (vs, f) =
-        let z = this.Zero ()
-        let folder a v = this.Bind(a, fun _ -> f v)
+    member this.For(vs, f) =
+        let z = this.Zero()
+        let folder a v = this.Bind(a, (fun _ -> f v))
         List.fold folder z vs
 
 let resultExpr = ResultBuilder()

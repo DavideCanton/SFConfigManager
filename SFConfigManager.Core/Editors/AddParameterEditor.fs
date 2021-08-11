@@ -13,7 +13,10 @@ let private innerBuildParameterElement name value isDefault ns =
     let element = XElement(XName.Get("Parameter", ns))
 
     let valueAttrName =
-        if isDefault then "DefaultValue" else "Value"
+        if isDefault then
+            "DefaultValue"
+        else
+            "Value"
 
     element.SetAttributeValue(!? "Name", name)
     element.SetAttributeValue(!?valueAttrName, value)

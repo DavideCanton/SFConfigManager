@@ -10,9 +10,10 @@ open System
 open SFConfigManager.Extensions.ResultComputationExpression
 
 let private filterEnvironments (argEnvironments: Set<string>) (envs: ParametersParseResult list) =
-    if argEnvironments.IsEmpty
-    then envs
-    else List.filter (fun e -> argEnvironments.Contains e.FileName) envs
+    if argEnvironments.IsEmpty then
+        envs
+    else
+        List.filter (fun e -> argEnvironments.Contains e.FileName) envs
 
 let setParamValueEditor (context: Context) section name value environments =
     resultExpr {
@@ -24,9 +25,9 @@ let setParamValueEditor (context: Context) section name value environments =
         let processEnvironment env =
             let actions =
                 [ SetAttribute
-                    { Path = xpath
-                      Name = "Value"
-                      Value = value } ]
+                      { Path = xpath
+                        Name = "Value"
+                        Value = value } ]
 
             processActionsAndSave actions env.RootElement.XElement env.FilePath
 
@@ -36,7 +37,8 @@ let setParamValueEditor (context: Context) section name value environments =
             |> List.map processEnvironment
             |> Result.partition
             |> fun (_, errors) ->
-                if List.isEmpty errors
-                then Ok()
-                else Error(SetArgumentsFailedException errors)
+                if List.isEmpty errors then
+                    Ok()
+                else
+                    Error(SetArgumentsFailedException errors)
     }
