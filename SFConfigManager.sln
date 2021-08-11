@@ -28,6 +28,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{3FEF04A8
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D60ABD26-7E51-4385-A2ED-E0E69A830E97}"
 	ProjectSection(SolutionItems) = preProject
+    .editorconfig=.editorconfig
 		.gitignore = .gitignore
 		LICENSE = LICENSE
 		.github\workflows\main.yml = .github\workflows\main.yml
