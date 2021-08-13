@@ -105,7 +105,7 @@ let processActionsAndSave actions (root: XElement) path =
     resultExpr {
         let folder acc a =
             resultExpr {
-                return! acc
+                do! acc
                 return! processAction root a
             }
 
